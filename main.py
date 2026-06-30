@@ -58,8 +58,8 @@ def get_dog_info(dog_name:str):
     foster_info = get_foster_notes_questionaire_info(dog_name)
     # shelter_luv_info = get_shelter_luv_info()  # Uncomment when implemented
     data = {
-        "slack_info": slack_info,
-        "foster_info": foster_info,
+        "behavior_updates_slack": slack_info,
+        "foster_questionnaire_profile": foster_info,
         # "shelter_luv_info": shelter_luv_info,  # Uncomment when implemented
     }
     return Response(
