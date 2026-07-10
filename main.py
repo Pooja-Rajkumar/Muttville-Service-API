@@ -96,6 +96,10 @@ def get_dog_info(dog_name:str):
         media_type="application/json",
     )
 
+def create_story():
+    # Function to create a story based on the aggregated information
+    pass
+
 def main():
     print("Hello from muttville-service-api!")
 
