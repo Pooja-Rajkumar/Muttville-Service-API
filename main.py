@@ -1,6 +1,8 @@
 import json
+from xmlrpc import client
 
-from constants import GOOGLE_SHEET_KEY, GOOGLE_SHEET_KEY_BEHAVIORAL_FOSTER, GOOGLE_SHEET_KEY_BEHAVIORAL_FOSTER_INTAKE, GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE, GOOGLE_SHEET_KEY_MEDICATIONS, GOOGLE_SHEET_KEY_SHELTER_LUV, GOOGLE_SHEET_KEY_SLACK
+from auth import get_client
+from constants import GOOGLE_SHEET_KEY_BEHAVIORAL_FOSTER_INTAKE, GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE, GOOGLE_SHEET_KEY_MEDICATIONS, GOOGLE_SHEET_KEY_SHELTER_LUV, GOOGLE_SHEET_KEY_SLACK
 from fastapi import FastAPI
 from google.oauth2.service_account import Credentials
 import gspread
@@ -10,12 +12,7 @@ app = FastAPI()
 
 
 def get_google_sheet(key: str):
-    SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
-    creds = Credentials.from_service_account_file(
-        "credentials.json",
-        scopes=SCOPES,
-    )
-    client = gspread.authorize(creds)
+    client = get_client()
     sheet = client.open_by_key(key)
     return sheet
 
