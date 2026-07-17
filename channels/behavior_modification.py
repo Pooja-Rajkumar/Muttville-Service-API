@@ -1,4 +1,4 @@
-from constants import GOOGLE_SHEET_KEY_BEHAVIORAL_OUTREACH_FOSTER, GOOGLE_SHEET_KEY_MEDICATIONS
+from constants import GOOGLE_SHEET_KEY_MEDICATIONS, GOOGLE_SHEET_KEY_MUTT_CHEAT_SHEET
 from google_sheet_connector import get_google_sheet
 
 
@@ -14,37 +14,15 @@ def get_medications_info(dog_name: str):
             pup_info.append(row)
     return pup_info
 
-## Did foster do anything to fix the behavional issues?
-def get_foster_response(dog_name: str):
-    sheet = get_google_sheet(GOOGLE_SHEET_KEY_BEHAVIORAL_OUTREACH_FOSTER)
-    sheet_id = 0 # Dog Tracker tab
-    sheet_data = sheet.worksheet(sheet_id).get_all_records()
-    pup_info = []
-    foster_response = {}
-    for row in sheet_data:
-        if row["Dog name"].lower() == dog_name.lower():
-            pup_info.append(row)
-    for row in pup_info:
-        if row["Foster response"] != "":
-            foster_response["Foster response"] = row["Foster response"]
-        if row["Foster response date"] != "":
-            foster_response["Foster response date"] = row["Foster response date"]   
-    return foster_response
-
-# Did trainer do anything to fix the behavional issues?
+# Did we get a trainer? Did trainer do anything to fix the behavional issues? 
 def get_trainer_response(dog_name: str):
-    sheet = get_google_sheet(GOOGLE_SHEET_KEY_BEHAVIORAL_OUTREACH_FOSTER)
-    sheet_id = 0 # Dog Tracker tab
-    sheet_data = sheet.worksheet(sheet_id).get_all_records()
+    sheet = get_google_sheet(GOOGLE_SHEET_KEY_MUTT_CHEAT_SHEET)
+    tab_id = 1665262541
+    sheet_data = sheet.get_worksheet_by_id(tab_id).get_all_records()
     pup_info = []
     trainer_response = {}
-    for row in sheet_data:
-        if row["Dog name"].lower() == dog_name.lower():
+    for row in sheet_data: 
+        if row["Dog Name"].lower() == dog_name.lower():
             pup_info.append(row)
-    for row in pup_info:
-        if row["Trainer response"] != "":
-            trainer_response["Trainer response"] = row["Trainer response"]
-        if row["Trainer response date"] != "":
-            trainer_response["Trainer response date"] = row["Trainer response date"]   
     return trainer_response
 
