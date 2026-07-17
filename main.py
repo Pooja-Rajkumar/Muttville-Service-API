@@ -6,6 +6,7 @@ from channels.foster_questionnaire_responses import get_foster_notes_questionair
 from channels.intake import get_intake_info
 from channels.slack import get_slack_info
 from create_timeline import create_timeline
+from models.behavior_event import BehaviorEvent
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
 from parsers.foster_questionnaire_parser import parse_foster_questionnaire
 from parsers.intake_parser import parse_intake_info
@@ -17,7 +18,12 @@ app = FastAPI()
 
 
 
-@app.get("/dog/{dog_name}")
+@app.get(
+    "/dog/{dog_name}",
+    response_model=list[BehaviorEvent],
+    response_model_exclude_none=True,
+)
+
 def get_dog_info(dog_name:str):
     medication_info = get_medications_info(dog_name)
     normalized_medication_info = parse_medication_info(medication_info)
@@ -34,7 +40,17 @@ def get_dog_info(dog_name:str):
     slack_info = get_slack_info(dog_name)
     normalized_slack_info = parse_slack_behavior_updates(slack_info)
     
-    pass
+    timeline = (
+        normalized_medication_info
+        + normalized_trainer_modifications
+        + normalized_foster_questionnaire_info
+        + normalized_intake_info
+        + normalized_slack_info
+    )
+
+    timeline.sort(key=lambda event: event.occurred_at)
+
+    return timeline
 
 
 def create_story():

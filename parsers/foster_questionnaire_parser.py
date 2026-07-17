@@ -60,14 +60,8 @@ def parse_foster_questionnaire(
                 )],
                 summary=summary or "Foster questionnaire submitted",
                 details=behavior_details,
-                raw_data=row,
+                #raw_data=row,
             )
         )
 
-    return [
-        event.model_dump(
-            exclude_none=True,
-            exclude={"raw_data"}
-        )
-        for event in events
-    ]
+    return events

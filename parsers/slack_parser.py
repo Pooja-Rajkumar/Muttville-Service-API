@@ -21,7 +21,7 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
                 source=EventSource.SLACK_BEHAVIOR_UPDATES,
                 concern=[classify_behavior_concern(notes)],
                 summary=notes,
-                raw_data=row,
+                #raw_data=row,
             )
         )
 

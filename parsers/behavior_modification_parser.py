@@ -22,13 +22,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
             )
         )
 
-    return [
-    event.model_dump(
-        exclude_none=True,
-        exclude={"raw_data"}
-    )
-    for event in events
-]
+    return events
 
 
 def parse_medication_info(
@@ -63,15 +57,10 @@ def parse_medication_info(
                 row.get("Where was behavior observed?")
             ),
             medication=clean_string(row.get("Medication")),
-            raw_data=row,
+            #raw_data=row,
         )
 
         events.append(event)
 
-    return [
-    event.model_dump(
-        exclude_none=True,
-        exclude={"raw_data"}
-    )
-    for event in events
-]
+    return events
+

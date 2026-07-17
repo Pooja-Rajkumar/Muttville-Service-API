@@ -30,4 +30,4 @@ class BehaviorEvent(BaseModel):
     location: str | None = None
     medication: str | None = None
 
-    raw_data: dict = Field(default_factory=dict)
+    #raw_data: dict = Field(default_factory=dict)

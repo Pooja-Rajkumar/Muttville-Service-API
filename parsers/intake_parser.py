@@ -29,14 +29,8 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
                 concern=[classify_behavior_concern(text)],
                 summary=intake_notes or "Intake behavior information recorded",
                 details= details or None,
-                raw_data=row,
+                #raw_data=row,
             )
         )
 
-    return [
-        event.model_dump(
-            exclude_none=True,
-            exclude={"raw_data"}
-        )
-        for event in events
-]
+    return events
