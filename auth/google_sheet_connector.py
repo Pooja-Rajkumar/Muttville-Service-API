@@ -1,4 +1,4 @@
-from auth import get_client
+from auth.auth import get_client
 
 
 def get_google_sheet(key: str):

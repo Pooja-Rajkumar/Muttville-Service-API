@@ -1,12 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-class BehaviorEvent:
-    date: datetime
-    source: str
-    category: str
-    summary: str
-    details: dict
+from pydantic import BaseModel, Field
 
 class BehaviorConcern(str, Enum):
     LEASH_REACTIVITY = "Leash Reactivity"
@@ -20,18 +15,19 @@ class BehaviorConcern(str, Enum):
 class EventSource(str, Enum):
     GS_MEDICATIONS = "Google Sheet - Medications"
     GS_MUTT_CHEAT_SHEET = "Google Sheet - Mutt Cheat Sheet"
-    GS_FOSTER_QUESTIONAIRE = "Google Sheet - Foster Questionnaire"
+    GS_FOSTER_QUESTIONNAIRE = "Google Sheet - Foster Questionnaire"
     GS_BEHAVIORAL_OUTREACH_FOSTER = "Google Sheet - Behavioral Outreach Foster"
     SLACK_BEHAVIOR_UPDATES = "Slack - Behavior Updates"
 
-# doubtful we will need this 
-# class EventType(str, Enum):
-#     BEHAVIOR = "Behavior"
-#     MEDICATION = "Medication"
-#     TRAINING = "Training"
-#     ADOPTION = "Adoption"
+class BehaviorEvent(BaseModel):
+    occurred_at: datetime
+    dog_name: str
+    source: EventSource
+    concern: list[BehaviorConcern]
+    summary: str
 
-# class Severity(str, Enum):
-#     LOW = "Low"
-#     MEDIUM = "Medium"
-#     HIGH = "High"
+    details: dict | None = None
+    location: str | None = None
+    medication: str | None = None
+
+    raw_data: dict = Field(default_factory=dict)
