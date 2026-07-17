@@ -14,16 +14,12 @@ from parsers.slack_parser import parse_slack_behavior_updates
 
 app = FastAPI()
 
-# @app.get("/foster/{dog_name}")
-
-
-
 @app.get(
     "/dog/{dog_name}",
     response_model=list[BehaviorEvent],
     response_model_exclude_none=True,
+    response_model_exclude={"__all__": {"raw_data"}},
 )
-
 def get_dog_info(dog_name:str):
     medication_info = get_medications_info(dog_name)
     normalized_medication_info = parse_medication_info(medication_info)

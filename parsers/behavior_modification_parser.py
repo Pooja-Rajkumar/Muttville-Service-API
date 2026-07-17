@@ -57,7 +57,7 @@ def parse_medication_info(
                 row.get("Where was behavior observed?")
             ),
             medication=clean_string(row.get("Medication")),
-            #raw_data=row,
+            raw_data=row,
         )
 
         events.append(event)

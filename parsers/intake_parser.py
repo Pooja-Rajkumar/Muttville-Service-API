@@ -29,7 +29,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
                 concern=[classify_behavior_concern(text)],
                 summary=intake_notes or "Intake behavior information recorded",
                 details= details or None,
-                #raw_data=row,
+                raw_data=row,
             )
         )
 

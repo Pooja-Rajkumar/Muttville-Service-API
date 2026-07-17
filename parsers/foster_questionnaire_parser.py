@@ -60,7 +60,7 @@ def parse_foster_questionnaire(
                 )],
                 summary=summary or "Foster questionnaire submitted",
                 details=behavior_details,
-                #raw_data=row,
+                raw_data=row,
             )
         )
 
