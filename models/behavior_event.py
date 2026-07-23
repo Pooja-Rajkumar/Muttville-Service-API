@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 class BehaviorConcern(str, Enum):
     LEASH_REACTIVITY = "Leash Reactivity"
@@ -21,6 +21,12 @@ class EventSource(str, Enum):
 
 class BehaviorEvent(BaseModel):
     occurred_at: datetime
+    
+    @computed_field
+    @property
+    def occurred_at_display(self) -> str:
+        return self.occurred_at.strftime("%b %d, %Y • %I:%M %p")
+    
     dog_name: str
     source: EventSource
     concern: list[BehaviorConcern]

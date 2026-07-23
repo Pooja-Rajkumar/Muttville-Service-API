@@ -12,12 +12,11 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
         foster_response = row.get("Foster Response", "").strip()
 
         text = intake_notes
-
-        if foster_response:
-            text += " " + foster_response
         details = {}
         if foster_response:
+            text += " " + foster_response
             details["foster_response"] = foster_response
+
         events.append(
             BehaviorEvent(
                 occurred_at=datetime.strptime(

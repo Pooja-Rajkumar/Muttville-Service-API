@@ -45,6 +45,7 @@ def get_dog_info(dog_name:str):
     )
 
     timeline.sort(key=lambda event: event.occurred_at)
+    
 
     return timeline
 

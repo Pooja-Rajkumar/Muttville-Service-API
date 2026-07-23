@@ -7,6 +7,7 @@ def get_intake_info(dog_name: str):
     sheet_data = sheet.worksheet("Dog Tracker").get_all_records()
     pup_info = []
     for row in sheet_data:
-        if row["Dog Name"].lower() == dog_name.lower():
+        sl_status = str(row.get("SL Status", "")).strip().lower()
+        if row["Dog Name"].lower() == dog_name.lower() and sl_status != "adopted":
             pup_info.append(row)
     return pup_info
