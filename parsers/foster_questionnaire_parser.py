@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from helpers.helper import clean_string
 from models.behavior_event import BehaviorEvent, EventSource
 from parsers.behavior_modification_parser import classify_behavior_concern
 
@@ -52,7 +53,8 @@ def parse_foster_questionnaire(
                     row["Submission Date/Time"],
                     "%m/%d/%Y %H:%M:%S",
                 ),
-                dog_name=row["Mutt's Name"],
+                inputted_by=clean_string(row.get("Your Name")),
+                dog_name=clean_string(row.get("Mutt's Name")),
                 source=EventSource.GS_FOSTER_QUESTIONNAIRE,
                 concern=[classify_behavior_concern(
                     text_to_classify,

@@ -137,6 +137,8 @@ if search_clicked:
                         if event.summary:
                             st.write(event.summary)
 
+                        if event.inputted_by:
+                            st.write(f"**Inputted by:** {event.inputted_by}")
 
                         if event.medication:
                             st.write(

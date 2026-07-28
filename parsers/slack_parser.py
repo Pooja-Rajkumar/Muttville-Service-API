@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from helpers.behavior_concern_classifier import classify_behavior_concern
+from helpers.helper import clean_string
 from models.behavior_event import BehaviorEvent, EventSource
 
 def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
@@ -21,6 +22,7 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
                 source=EventSource.SLACK_BEHAVIOR_UPDATES,
                 concern=[classify_behavior_concern(notes)],
                 summary=notes,
+                inputted_by=clean_string(row.get("Submitted By")),
                 raw_data=row,
             )
         )

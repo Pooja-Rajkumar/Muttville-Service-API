@@ -13,7 +13,8 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
                     row["Referral Date "],
                     "%m/%d/%Y",
                 ),
-                dog_name=row["Dog Name"],
+                inputted_by=clean_string(row.get("Who referred?")),
+                dog_name=clean_string(row.get("Dog Name")),
                 source=EventSource.GS_MUTT_CHEAT_SHEET,
                 concern=[BehaviorConcern(row["Primary Behavior Concern(s)"])],
                 summary=f"Referred to trainer {row['Trainer Name']}",
@@ -45,6 +46,7 @@ def parse_medication_info(
 
         event = BehaviorEvent(
             occurred_at=occurred_at,
+            inputted_by=clean_string(row.get("Your name")),
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,
             concern=[classify_behavior_concern(

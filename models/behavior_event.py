@@ -26,7 +26,8 @@ class BehaviorEvent(BaseModel):
     @property
     def occurred_at_display(self) -> str:
         return self.occurred_at.strftime("%b %d, %Y • %I:%M %p")
-    
+
+    inputted_by: str | None = None
     dog_name: str
     source: EventSource
     concern: list[BehaviorConcern]
@@ -35,5 +36,6 @@ class BehaviorEvent(BaseModel):
     details: dict | None = None
     location: str | None = None
     medication: str | None = None
+
 
     raw_data: dict = Field(default_factory=dict)
