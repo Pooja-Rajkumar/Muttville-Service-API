@@ -85,3 +85,93 @@ def classify_behavior_concern(
         return BehaviorConcern.INTROS_TO_RESIDENT_PET
 
     return BehaviorConcern.OTHER
+
+
+
+from models.behavior_event import BehaviorConcern
+from models.foster_behavior_event import (
+    EngagementBehaviorType,
+    EnjoymentBehaviorType,
+    LeashBehaviorType,
+    SoloMuttBehaviorType,
+)
+
+
+def classify_foster_behavior_concerns(
+    dogs_foster_home: EngagementBehaviorType | None = None,
+    cats_foster_home: EngagementBehaviorType | None = None,
+    dogs_other_home: EngagementBehaviorType | None = None,
+    cats_other_home: EngagementBehaviorType | None = None,
+    being_petted: EnjoymentBehaviorType | None = None,
+    getting_picked_up: EnjoymentBehaviorType | None = None,
+    baths: EnjoymentBehaviorType | None = None,
+    leash_behavior: list[LeashBehaviorType] | None = None,
+    solo_mutt_behavior: SoloMuttBehaviorType | None = None,
+) -> list[BehaviorConcern]:
+
+    concerns = []
+
+    # Separation distress
+    if solo_mutt_behavior == SoloMuttBehaviorType.ANXIOUS:
+        concerns.append(BehaviorConcern.SEPARATION_DISTRESS)
+
+    # Leash reactivity
+    if leash_behavior:
+        reactive_leash_behaviors = {
+            LeashBehaviorType.BARKS_AT_DOGS,
+            LeashBehaviorType.BARKS_AT_HUMANS,
+            LeashBehaviorType.BARKS_AT_MOVEMENT,
+        }
+
+        for behavior in leash_behavior:
+            if behavior in reactive_leash_behaviors:
+                concerns.append(BehaviorConcern.LEASH_REACTIVITY)
+                break
+
+    # Handling sensitivity
+    handling_behaviors = [
+        being_petted,
+        getting_picked_up,
+        baths,
+    ]
+
+    for behavior in handling_behaviors:
+        if behavior == EnjoymentBehaviorType.NERVOUS:
+            concerns.append(BehaviorConcern.HANDLING_SENSITIVITY)
+            break
+
+    # Resource guarding
+    social_behaviors = [
+        dogs_foster_home,
+        cats_foster_home,
+        dogs_other_home,
+        cats_other_home,
+    ]
+
+    for behavior in social_behaviors:
+        if behavior == EngagementBehaviorType.GUARDING:
+            concerns.append(BehaviorConcern.RESOURCE_GUARDING)
+            break
+
+    # Resident pet introductions
+    pet_social_behaviors = [
+        dogs_foster_home,
+        cats_foster_home,
+        dogs_other_home,
+        cats_other_home,
+    ]
+
+    concerning_pet_responses = {
+        EngagementBehaviorType.AVOID,
+        EngagementBehaviorType.GUARDING,
+    }
+
+    for behavior in pet_social_behaviors:
+        if behavior in concerning_pet_responses:
+            concerns.append(BehaviorConcern.INTROS_TO_RESIDENT_PET)
+            break
+
+    if not concerns:
+        concerns.append(BehaviorConcern.OTHER)
+
+    return concerns

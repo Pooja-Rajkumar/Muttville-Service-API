@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
+from helpers.behavior_concern_classifier import classify_foster_behavior_concerns
 from helpers.helper import clean_string
 from models.behavior_event import BehaviorEvent, EventSource
 from models.foster_behavior_event import (
@@ -91,12 +92,50 @@ def parse_foster_questionnaire(
                 "for the Muttville team to know about your mutt?"
             ),
         }
-
-        text_to_classify = " ".join(
-            str(value)
-            for value in behavior_details.values()
-            if value
+        dogs_foster_home = parse_single_behavior(
+            row.get("Dogs (Foster Home)"),
+            EngagementBehaviorType,
         )
+
+        cats_foster_home = parse_single_behavior(
+            row.get("Cats (Foster Home)"),
+            EngagementBehaviorType,
+        )
+
+        being_petted = parse_single_behavior(
+            row.get("Being petted"),
+            EnjoymentBehaviorType,
+        )
+
+        getting_picked_up = parse_single_behavior(
+            row.get("Getting picked up"),
+            EnjoymentBehaviorType,
+        )
+
+        baths = parse_single_behavior(
+            row.get("Baths"),
+            EnjoymentBehaviorType,
+        )
+        dogs_other_home = parse_single_behavior(
+            row.get("Dogs (Other Home)"),
+            EngagementBehaviorType,
+        )
+        cats_other_home=parse_single_behavior(
+            row.get("Cats (Other Home)"),
+            EngagementBehaviorType,
+        )
+
+        concerns = classify_foster_behavior_concerns(
+            dogs_foster_home=dogs_foster_home,
+            cats_foster_home=cats_foster_home,
+            dogs_other_home=dogs_other_home,
+            cats_other_home=cats_other_home,
+            being_petted=being_petted,
+            getting_picked_up=getting_picked_up,
+            baths=baths,
+            leash_behavior=leash_behavior,
+            solo_mutt_behavior=solo_mutt_behavior,
+)
 
         events.append(
             FosterBehaviorEvent(
@@ -107,15 +146,9 @@ def parse_foster_questionnaire(
                 inputted_by=clean_string(row.get("Your Name")),
                 dog_name=clean_string(row.get("Mutt's Name")),
                 source=EventSource.GS_FOSTER_QUESTIONNAIRE,
-                concern=[
-                    classify_behavior_concern(
-                        text_to_classify,
-                        summary,
-                    )
-                ],
                 summary=summary or "Foster questionnaire submitted",
                 details=behavior_details,
-
+                concern=concerns,
                 stairs_behavior=stairs_behavior,
                 potty_behavior=potty_behavior,
 
@@ -123,14 +156,8 @@ def parse_foster_questionnaire(
                 sleep_behavior_other_text=sleep_behavior_other_text,
 
                 # Social behavior at foster home
-                dogs_foster_home=parse_single_behavior(
-                    row.get("Dogs (Foster Home)"),
-                    EngagementBehaviorType,
-                ),
-                cats_foster_home=parse_single_behavior(
-                    row.get("Cats (Foster Home)"),
-                    EngagementBehaviorType,
-                ),
+                dogs_foster_home=dogs_foster_home,
+                cats_foster_home=cats_foster_home,
                 adults_foster_home=parse_single_behavior(
                     row.get("Adults (Foster Home)"),
                     EngagementBehaviorType,
@@ -145,14 +172,8 @@ def parse_foster_questionnaire(
                 ),
 
                 # Social behavior at someone else's home
-                dogs_other_home=parse_single_behavior(
-                    row.get("Dogs (Other Home)"),
-                    EngagementBehaviorType,
-                ),
-                cats_other_home=parse_single_behavior(
-                    row.get("Cats (Other Home)"),
-                    EngagementBehaviorType,
-                ),
+                dogs_other_home=dogs_other_home,
+                cats_other_home=cats_other_home,
                 adults_other_home=parse_single_behavior(
                     row.get("Adults (Other Home)"),
                     EngagementBehaviorType,
@@ -189,19 +210,9 @@ def parse_foster_questionnaire(
                 ),
 
                 # Handling experiences
-                being_petted=parse_single_behavior(
-                    row.get("Being petted"),
-                    EnjoymentBehaviorType,
-                ),
-                getting_picked_up=parse_single_behavior(
-                    row.get("Getting picked up"),
-                    EnjoymentBehaviorType,
-                ),
-                baths=parse_single_behavior(
-                    row.get("Baths"),
-                    EnjoymentBehaviorType,
-                ),
-
+                being_petted=being_petted,
+                getting_picked_up=getting_picked_up,
+                baths=baths,
                 leash_behavior=leash_behavior,
                 solo_mutt_behavior=solo_mutt_behavior,
 
