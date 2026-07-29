@@ -33,9 +33,9 @@ class BehaviorEvent(BaseModel):
     concern: list[BehaviorConcern]
     summary: str
 
-    details: dict | None = None
-    location: str | None = None
-    medication: str | None = None
+    # details: dict | None = None
+    # location: str | None = None
+    # medication: str | None = None
 
 
     raw_data: dict = Field(default_factory=dict)

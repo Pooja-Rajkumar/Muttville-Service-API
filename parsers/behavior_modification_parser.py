@@ -3,12 +3,13 @@ from datetime import datetime
 from typing import Any
 from helpers.behavior_concern_classifier import classify_behavior_concern
 from helpers.helper import clean_string, parse_timestamp
+from models.behavior_modification_event import MedicationBehaviorEvent, TrainerBehaviorEvent
 
 def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
     for row in rows:
         events.append(
-            BehaviorEvent(
+            TrainerBehaviorEvent(
                 occurred_at=datetime.strptime(
                     row["Referral Date "],
                     "%m/%d/%Y",
@@ -16,15 +17,31 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
                 inputted_by=clean_string(row.get("Who referred?")),
                 dog_name=clean_string(row.get("Dog Name")),
                 source=EventSource.GS_MUTT_CHEAT_SHEET,
-                concern=[BehaviorConcern(row["Primary Behavior Concern(s)"])],
+                concern=match_behavior_concerns(row.get("Primary Behavior Concern(s)")),
                 summary=f"Referred to trainer {row['Trainer Name']}",
-                details={"notes": row.get("Notes")},
-                raw_data=row,
+                trainer_name=clean_string(row.get("Trainer Name")),
+                referral_date=clean_string(row.get("Referral Date ")),
+                notes=clean_string(row.get("Notes")),
             )
         )
 
     return events
 
+def match_behavior_concerns(value: str | None) -> list[BehaviorConcern]:
+    if not value:
+        return [BehaviorConcern.OTHER]
+    concerns = []
+    values = value.split(",")
+    for item in values:
+        item = item.strip()
+        try:
+            concern = BehaviorConcern(item)
+            concerns.append(concern)
+        except ValueError:
+            continue
+    if not concerns:
+        return [BehaviorConcern.OTHER]
+    return concerns
 
 def parse_medication_info(
     rows: list[dict[str, Any]],
@@ -44,7 +61,7 @@ def parse_medication_info(
             row.get("Any additional notes?")
         )
 
-        event = BehaviorEvent(
+        event = MedicationBehaviorEvent(
             occurred_at=occurred_at,
             inputted_by=clean_string(row.get("Your name")),
             dog_name=dog_name,
@@ -54,7 +71,6 @@ def parse_medication_info(
                 notes=additional_notes,
             )],
             summary=summary,
-            details={"additional_notes": additional_notes},
             location=clean_string(
                 row.get("Where was behavior observed?")
             ),

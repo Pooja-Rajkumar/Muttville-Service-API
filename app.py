@@ -140,43 +140,7 @@ if search_clicked:
                         if event.inputted_by:
                             st.write(f"**Inputted by:** {event.inputted_by}")
 
-                        if event.medication:
-                            st.write(
-                                f"**Medication:** {event.medication}"
-                            )
-
-                        if event.location:
-                            st.write(
-                                f"**Location:** {event.location}"
-                            )
-
-                        if event.details:
-                            visible_details = {
-                                key: value
-                                for key, value in event.details.items()
-                                if value not in (
-                                    None,
-                                    "",
-                                    [],
-                                    {},
-                                )
-                            }
-
-                            if visible_details:
-                                with st.expander("View details"):
-                                    for key, value in (
-                                        visible_details.items()
-                                    ):
-                                        label = (
-                                            key.replace("_", " ")
-                                            .strip()
-                                            .title()
-                                        )
-
-                                        st.write(
-                                            f"**{label}:** {value}"
-                                        )
-
+                        
         except Exception as exc:
             st.error("Could not load the dog's timeline.")
             st.exception(exc)

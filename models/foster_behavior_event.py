@@ -63,7 +63,7 @@ class LeashBehaviorType(str, Enum):
 
 
 class SoloMuttBehaviorType(str, Enum):
-    SETTLED = "Hardly notice I'm gone"
+    SETTLED = "Hardly notice I’m gone"
     VOCAL = "Vocalize a little and then settle down"
     ANXIOUS = (
         "Vocalize for an extended time and/or shows other anxious behaviors"
