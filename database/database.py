@@ -116,7 +116,7 @@ def get_behavior_events_for_dog(
         SELECT *
         FROM behavior_events
         WHERE dog_name = ?
-        ORDER BY occurred_at DESC
+        ORDER BY timestamp DESC
         """,
         (dog_name,),
     ).fetchall()
