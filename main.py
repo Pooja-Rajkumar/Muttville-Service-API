@@ -6,6 +6,7 @@ from channels.foster_questionnaire_responses import get_foster_notes_questionair
 from channels.intake import get_intake_info
 from channels.slack import get_slack_info
 from create_timeline import create_timeline
+from database.database import create_tables, get_behavior_events
 from models.behavior_event import BehaviorEvent
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
 from parsers.foster_questionnaire_parser import parse_foster_questionnaire
@@ -13,6 +14,8 @@ from parsers.intake_parser import parse_intake_info
 from parsers.slack_parser import parse_slack_behavior_updates
 
 app = FastAPI()
+create_tables()
+print(get_behavior_events())
 
 @app.get(
     "/dog/{dog_name}",
