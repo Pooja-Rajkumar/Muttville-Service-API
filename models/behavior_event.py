@@ -30,7 +30,7 @@ class BehaviorEvent(BaseModel):
     inputted_by: str | None = None
     dog_name: str
     source: EventSource
-    concern: list[BehaviorConcern]
+    concerns: list[BehaviorConcern]
     summary: str
 
     # details: dict | None = None

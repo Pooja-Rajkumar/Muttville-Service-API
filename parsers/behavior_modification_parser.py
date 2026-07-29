@@ -17,7 +17,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
                 inputted_by=clean_string(row.get("Who referred?")),
                 dog_name=clean_string(row.get("Dog Name")),
                 source=EventSource.GS_MUTT_CHEAT_SHEET,
-                concern=match_behavior_concerns(row.get("Primary Behavior Concern(s)")),
+                concerns=match_behavior_concerns(row.get("Primary Behavior Concern(s)")),
                 summary=f"Referred to trainer {row['Trainer Name']}",
                 trainer_name=clean_string(row.get("Trainer Name")),
                 referral_date=clean_string(row.get("Referral Date ")),
@@ -66,7 +66,7 @@ def parse_medication_info(
             inputted_by=clean_string(row.get("Your name")),
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,
-            concern=[classify_behavior_concern(
+            concerns=[classify_behavior_concern(
                 summary=summary,
                 notes=additional_notes,
             )],

@@ -148,7 +148,7 @@ def parse_foster_questionnaire(
                 source=EventSource.GS_FOSTER_QUESTIONNAIRE,
                 summary=summary or "Foster questionnaire submitted",
                 details=behavior_details,
-                concern=concerns,
+                concerns=concerns,
                 stairs_behavior=stairs_behavior,
                 potty_behavior=potty_behavior,
 

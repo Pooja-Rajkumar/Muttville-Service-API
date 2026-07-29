@@ -20,7 +20,7 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
                 occurred_at=timestamp,
                 dog_name=row["Pup Name"],
                 source=EventSource.SLACK_BEHAVIOR_UPDATES,
-                concern=[classify_behavior_concern(notes)],
+                concerns=[classify_behavior_concern(notes)],
                 summary=notes,
                 inputted_by=clean_string(row.get("Submitted By")),
                 raw_data=row,

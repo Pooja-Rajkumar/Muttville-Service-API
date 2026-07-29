@@ -1,11 +1,5 @@
 from enum import Enum
-
 from models.behavior_event import BehaviorEvent
-
-from enum import Enum
-
-from models.behavior_event import BehaviorEvent
-
 
 class StairBehaviorType(str, Enum):
     COMFORTABLE = "My mutt is comfortable going up and down 1 or more flights of stairs"
@@ -15,8 +9,6 @@ class StairBehaviorType(str, Enum):
     CARRY = "Stairs - and I carry my mutt!"
     UNKNOWN = "I don't know how my mutt handles stairs"
     NO_STAIRS = "No stairs!"
-
-
 
 class PottyBehaviorType(str, Enum):
     WALKS = "On walks"

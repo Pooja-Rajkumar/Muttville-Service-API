@@ -1,4 +1,7 @@
+import json
 import sqlite3
+
+from models.behavior_event import BehaviorEvent
 
 
 def get_db_connection():
@@ -12,12 +15,15 @@ def create_tables():
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS behavior_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dog_name TEXT NOT NULL,
+            id INTEGER PRIMARY KEY,
+            event_type TEXT NOT NULL,
             occurred_at TEXT NOT NULL,
+            inputted_by TEXT,
+            dog_name TEXT NOT NULL,
             source TEXT NOT NULL,
-            summary TEXT,
-            details TEXT
+            concerns TEXT NOT NULL,
+            summary TEXT NOT NULL,
+            event_data TEXT NOT NULL
         )
     """)
 
@@ -33,3 +39,71 @@ def get_behavior_events():
 
     connection.close()
     return rows
+
+
+def save_behavior_event(event: BehaviorEvent):
+    connection = get_db_connection()
+
+    concerns = []
+
+    for concern in event.concerns:
+        concerns.append(concern.value)
+
+    event_data = event.model_dump(
+        mode="json",
+        exclude={
+            "occurred_at_display",
+            "occurred_at",
+            "inputted_by",
+            "dog_name",
+            "source",
+            "concerns",
+            "summary",
+            "raw_data",
+        },
+    )
+    print("ABOUT TO SAVE:", event.dog_name, event.source)
+    connection.execute(
+        """
+        INSERT INTO behavior_events (
+            event_type,
+            occurred_at,
+            inputted_by,
+            dog_name,
+            source,
+            concerns,
+            summary,
+            event_data
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            event.__class__.__name__,
+            event.occurred_at.isoformat(),
+            event.inputted_by,
+            event.dog_name,
+            event.source.value,
+            json.dumps(concerns),
+            event.summary,
+            json.dumps(event_data),
+        ),
+    )
+    print("Saved event:", event.dog_name, event.source.value)
+    connection.commit()
+    connection.close()
+
+
+def get_behavior_events():
+    connection = get_db_connection()
+
+    rows = connection.execute(
+        """
+        SELECT *
+        FROM behavior_events
+        ORDER BY occurred_at DESC
+        """
+    ).fetchall()
+
+    connection.close()
+
+    return [dict(row) for row in rows]

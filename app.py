@@ -118,12 +118,12 @@ if search_clicked:
                         with source_column:
                             st.caption(source)
 
-                        if event.concern:
+                        if event.concerns:
                             st.markdown("**Behavior concerns**")
 
                             chips = ""
 
-                            for concern in event.concern:
+                            for concern in event.concerns:
                                 concern_name = (
                                     concern.value
                                     if hasattr(concern, "value")
