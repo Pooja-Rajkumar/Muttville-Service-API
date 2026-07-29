@@ -22,7 +22,7 @@ def deserialize_behavior_event(row):
     concerns = json.loads(row["concerns"])
 
     return event_model(
-        occurred_at=row["occurred_at"],
+        timestamp=row["timestamp"],
         inputted_by=row["inputted_by"],
         dog_name=row["dog_name"],
         source=EventSource(row["source"]),

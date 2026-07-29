@@ -20,12 +20,12 @@ class EventSource(str, Enum):
     SLACK_BEHAVIOR_UPDATES = "Slack - Behavior Updates"
 
 class BehaviorEvent(BaseModel):
-    occurred_at: datetime
+    timestamp: datetime
     
     @computed_field
     @property
-    def occurred_at_display(self) -> str:
-        return self.occurred_at.strftime("%b %d, %Y • %I:%M %p")
+    def timestamp_display(self) -> str:
+        return self.timestamp.strftime("%b %d, %Y • %I:%M %p")
 
     inputted_by: str | None = None
     dog_name: str

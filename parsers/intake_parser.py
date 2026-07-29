@@ -14,7 +14,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
         foster_response = row.get("Foster Response", "").strip()
         events.append(
             IntakeEvent(
-                occurred_at=datetime.strptime(
+                timestamp=datetime.strptime(
                     row["Date - Intake"],
                     "%m/%d/%y",
                 ),

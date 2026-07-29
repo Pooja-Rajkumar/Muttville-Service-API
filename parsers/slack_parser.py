@@ -17,7 +17,7 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
 
         events.append(
             BehaviorEvent(
-                occurred_at=timestamp,
+                timestamp=timestamp,
                 dog_name=row["Pup Name"],
                 source=EventSource.SLACK_BEHAVIOR_UPDATES,
                 concerns=[classify_behavior_concern(notes)],

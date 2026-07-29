@@ -10,7 +10,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     for row in rows:
         events.append(
             TrainerBehaviorEvent(
-                occurred_at=datetime.strptime(
+                timestamp=datetime.strptime(
                     row["Referral Date "],
                     "%m/%d/%Y",
                 ),
@@ -62,7 +62,7 @@ def parse_medication_info(
         )
 
         event = MedicationBehaviorEvent(
-            occurred_at=occurred_at,
+            timestamp=occurred_at,
             inputted_by=clean_string(row.get("Your name")),
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,

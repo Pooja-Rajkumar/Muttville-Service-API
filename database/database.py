@@ -18,7 +18,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS behavior_events (
             id INTEGER PRIMARY KEY,
             event_type TEXT NOT NULL,
-            occurred_at TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
             inputted_by TEXT,
             dog_name TEXT NOT NULL,
             source TEXT NOT NULL,
@@ -31,7 +31,7 @@ def create_tables():
     connection.commit()
     connection.close()
 
-def get_behavior_events():
+def get_all_behavior_events():
     connection = get_db_connection()
 
     rows = connection.execute(
@@ -55,8 +55,7 @@ def save_behavior_event(event: BehaviorEvent):
     event_data = event.model_dump(
         mode="json",
         exclude={
-            "occurred_at_display",
-            "occurred_at",
+            "timestamp",
             "inputted_by",
             "dog_name",
             "source",
@@ -69,7 +68,7 @@ def save_behavior_event(event: BehaviorEvent):
         """
         INSERT INTO behavior_events (
             event_type,
-            occurred_at,
+            timestamp,
             inputted_by,
             dog_name,
             source,
@@ -81,7 +80,7 @@ def save_behavior_event(event: BehaviorEvent):
         """,
         (
             event.__class__.__name__,
-            event.occurred_at.isoformat(),
+            event.timestamp.isoformat(),
             event.inputted_by,
             event.dog_name,
             event.source.value,
@@ -95,19 +94,16 @@ def save_behavior_event(event: BehaviorEvent):
     connection.close()
 
 
-def get_behavior_events():
+def get_all_behavior_events():
     connection = get_db_connection()
-
     rows = connection.execute(
         """
         SELECT *
         FROM behavior_events
-        ORDER BY occurred_at DESC
+        ORDER BY timestamp DESC
         """
     ).fetchall()
-
     connection.close()
-
     return [dict(row) for row in rows]
 
 
@@ -115,7 +111,6 @@ def get_behavior_events_for_dog(
     dog_name: str,
 ) -> list[BehaviorEvent]:
     connection = get_db_connection()
-
     rows = connection.execute(
         """
         SELECT *
@@ -140,13 +135,15 @@ def behavior_event_exists(event: BehaviorEvent) -> bool:
         FROM behavior_events
         WHERE source = ?
         AND dog_name = ?
-        AND occurred_at = ?
+        AND timestamp = ?
+        AND inputted_by = ?
         AND summary = ?
         """,
         (
             event.source.value,
             event.dog_name,
-            event.occurred_at.isoformat(),
+            event.timestamp.isoformat(),
+            event.inputted_by,
             event.summary,
         ),
     ).fetchone()

@@ -113,7 +113,7 @@ if search_clicked:
                         date_column, source_column = st.columns([2, 3])
 
                         with date_column:
-                            st.caption(event.occurred_at_display)
+                            st.caption(event.timestamp_display)
 
                         with source_column:
                             st.caption(source)

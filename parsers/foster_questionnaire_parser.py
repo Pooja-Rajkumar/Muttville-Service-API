@@ -139,7 +139,7 @@ def parse_foster_questionnaire(
 
         events.append(
             FosterBehaviorEvent(
-                occurred_at=datetime.strptime(
+                timestamp=datetime.strptime(
                     row["Submission Date/Time"],
                     "%m/%d/%Y %H:%M:%S",
                 ),
