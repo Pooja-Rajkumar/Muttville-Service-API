@@ -1,6 +1,7 @@
 import json
 import sqlite3
 
+from database.deserialize_behavior_events import deserialize_behavior_event
 from models.behavior_event import BehaviorEvent
 
 
@@ -42,6 +43,8 @@ def get_behavior_events():
 
 
 def save_behavior_event(event: BehaviorEvent):
+    if(behavior_event_exists(event)):
+        return 
     connection = get_db_connection()
 
     concerns = []
@@ -62,7 +65,6 @@ def save_behavior_event(event: BehaviorEvent):
             "raw_data",
         },
     )
-    print("ABOUT TO SAVE:", event.dog_name, event.source)
     connection.execute(
         """
         INSERT INTO behavior_events (
@@ -107,3 +109,48 @@ def get_behavior_events():
     connection.close()
 
     return [dict(row) for row in rows]
+
+
+def get_behavior_events_for_dog(
+    dog_name: str,
+) -> list[BehaviorEvent]:
+    connection = get_db_connection()
+
+    rows = connection.execute(
+        """
+        SELECT *
+        FROM behavior_events
+        WHERE dog_name = ?
+        ORDER BY occurred_at DESC
+        """,
+        (dog_name,),
+    ).fetchall()
+    connection.close()
+    events = []
+    for row in rows:
+        events.append(deserialize_behavior_event(row))
+    return events
+
+def behavior_event_exists(event: BehaviorEvent) -> bool:
+    connection = get_db_connection()
+
+    row = connection.execute(
+        """
+        SELECT id
+        FROM behavior_events
+        WHERE source = ?
+        AND dog_name = ?
+        AND occurred_at = ?
+        AND summary = ?
+        """,
+        (
+            event.source.value,
+            event.dog_name,
+            event.occurred_at.isoformat(),
+            event.summary,
+        ),
+    ).fetchone()
+
+    connection.close()
+
+    return (row is not None)
