@@ -12,6 +12,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
     for row in rows:
         intake_notes = row.get("Intake Behavior Notes", "").strip()
         foster_response = row.get("Foster Response", "").strip()
+        date_intake = row.get("Date - Intake", "").strip()
         events.append(
             IntakeEvent(
                 timestamp=datetime.strptime(
@@ -19,6 +20,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
                     "%m/%d/%y",
                 ),
                 inputted_by=clean_string(row.get("Foster Name")),
+                id=clean_string(row.get("Dog Name")) + "-" + date_intake,
                 dog_name=clean_string(row.get("Dog Name")),
                 source=EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER,
                 concerns=[classify_behavior_concern(intake_notes)],

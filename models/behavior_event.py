@@ -32,7 +32,7 @@ class BehaviorEvent(BaseModel):
     source: EventSource
     concerns: list[BehaviorConcern]
     summary: str
-
+    id: str # This varies by channel
     # details: dict | None = None
     # location: str | None = None
     # medication: str | None = None

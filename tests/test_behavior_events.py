@@ -1,8 +1,6 @@
 import sqlite3
 from datetime import datetime
-
 import pytest
-
 from database.database import get_behavior_events_for_dog, save_behavior_event
 from models.behavior_event import BehaviorConcern, EventSource
 from models.behavior_modification_event import MedicationBehaviorEvent
@@ -11,7 +9,6 @@ from models.foster_behavior_event import (
     LeashBehaviorType,
     SleepBehaviorType,
 )
-
 
 @pytest.fixture
 def test_db(tmp_path, monkeypatch):

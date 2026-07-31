@@ -8,14 +8,16 @@ from models.behavior_modification_event import MedicationBehaviorEvent, TrainerB
 def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
     for row in rows:
+        print("referral date = ", row["Referral Date "])
+        print("parse_timestamp = ", parse_timestamp(row["Referral Date "]))
+        timestamp = parse_timestamp(row["Referral Date "])
+        dog_name = clean_string(row.get("Dog Name"))
         events.append(
             TrainerBehaviorEvent(
-                timestamp=datetime.strptime(
-                    row["Referral Date "],
-                    "%m/%d/%Y",
-                ),
+                timestamp=timestamp,
+                id=timestamp + "-" + dog_name,
                 inputted_by=clean_string(row.get("Who referred?")),
-                dog_name=clean_string(row.get("Dog Name")),
+                dog_name=dog_name,
                 source=EventSource.GS_MUTT_CHEAT_SHEET,
                 concerns=match_behavior_concerns(row.get("Primary Behavior Concern(s)")),
                 summary=f"Referred to trainer {row['Trainer Name']}",
@@ -52,9 +54,9 @@ def parse_medication_info(
         summary = clean_string(
             row.get("Short description of behavior observed")
         )
-        occurred_at = parse_timestamp(row.get("Timestamp"))
-
-        if not dog_name or not summary or not occurred_at:
+        timestamp = parse_timestamp(row.get("Timestamp"))
+        inputted_by = clean_string(row.get("Your name"))
+        if not dog_name or not summary or not timestamp:
             continue
 
         additional_notes = clean_string(
@@ -62,8 +64,9 @@ def parse_medication_info(
         )
 
         event = MedicationBehaviorEvent(
-            timestamp=occurred_at,
-            inputted_by=clean_string(row.get("Your name")),
+            timestamp=timestamp,
+            id= timestamp + "-" + dog_name + inputted_by,
+            inputted_by=inputted_by,
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,
             concerns=[classify_behavior_concern(

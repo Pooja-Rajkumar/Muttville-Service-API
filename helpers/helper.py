@@ -10,7 +10,7 @@ def clean_string(value: Any) -> str | None:
 
     return text or None
 
-def parse_timestamp(value: Any) -> datetime | None: # type: ignore
+def parse_timestamp(value: Any) -> str | None: # type: ignore
     text = clean_string(value)
 
     if not text:
@@ -24,7 +24,7 @@ def parse_timestamp(value: Any) -> datetime | None: # type: ignore
 
     for date_format in formats:
         try:
-            return datetime.strptime(text, date_format)
+            return str(datetime.strptime(text, date_format))
         except ValueError:
             continue
 

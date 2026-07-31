@@ -48,6 +48,8 @@ def get_dog_info(dog_name:str):
 
     timeline.sort(key=lambda event: event.timestamp)
     for event in timeline:
+        print("ID ==================")
+        print(event.id)
         save_behavior_event(event)
 
 
