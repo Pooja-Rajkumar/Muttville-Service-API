@@ -20,7 +20,6 @@ create_tables()
     "/dog/{dog_name}",
     response_model=list[BehaviorEvent],
     response_model_exclude_none=True,
-    response_model_exclude={"__all__": {"raw_data"}},
 )
 def get_dog_info(dog_name:str):
     medication_info = get_medications_info(dog_name)
@@ -48,8 +47,6 @@ def get_dog_info(dog_name:str):
 
     timeline.sort(key=lambda event: event.timestamp)
     for event in timeline:
-        print("ID ==================")
-        print(event.id)
         save_behavior_event(event)
 
 

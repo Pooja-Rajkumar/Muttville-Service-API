@@ -15,7 +15,7 @@ EVENT_MODELS = {
     "IntakeEvent": IntakeEvent,
 }
 
-def deserialize_behavior_event(row):
+def convert_row_to_event(row):
     event_model = EVENT_MODELS[row["event_type"]]
 
     event_data = json.loads(row["event_data"])
@@ -23,6 +23,7 @@ def deserialize_behavior_event(row):
 
     return event_model(
         timestamp=row["timestamp"],
+        event_id=row["event_id"],
         inputted_by=row["inputted_by"],
         dog_name=row["dog_name"],
         source=EventSource(row["source"]),

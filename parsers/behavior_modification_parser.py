@@ -15,7 +15,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
         events.append(
             TrainerBehaviorEvent(
                 timestamp=timestamp,
-                id=timestamp + "-" + dog_name,
+                event_id=timestamp + "-" + dog_name,
                 inputted_by=clean_string(row.get("Who referred?")),
                 dog_name=dog_name,
                 source=EventSource.GS_MUTT_CHEAT_SHEET,
@@ -65,7 +65,7 @@ def parse_medication_info(
 
         event = MedicationBehaviorEvent(
             timestamp=timestamp,
-            id= timestamp + "-" + dog_name + inputted_by,
+            event_id= timestamp + "-" + dog_name + inputted_by,
             inputted_by=inputted_by,
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,
@@ -78,7 +78,6 @@ def parse_medication_info(
                 row.get("Where was behavior observed?")
             ),
             medication=clean_string(row.get("Medication")),
-            raw_data=row,
         )
 
         events.append(event)

@@ -27,8 +27,9 @@ def test_db(tmp_path, monkeypatch):
     connection = get_test_db_connection()
 
     connection.execute("""
-        CREATE TABLE behavior_events (
+        CREATE TABLE IF NOT EXISTS behavior_events (
             id INTEGER PRIMARY KEY,
+            event_id TEXT NOT NULL,
             event_type TEXT NOT NULL,
             timestamp TEXT NOT NULL,
             inputted_by TEXT,
@@ -36,7 +37,9 @@ def test_db(tmp_path, monkeypatch):
             source TEXT NOT NULL,
             concerns TEXT NOT NULL,
             summary TEXT NOT NULL,
-            event_data TEXT NOT NULL
+            event_data TEXT NOT NULL,
+
+            UNIQUE(source, event_id)
         )
     """)
 
@@ -47,6 +50,7 @@ def make_foster_event() -> FosterBehaviorEvent:
     return FosterBehaviorEvent(
         timestamp=datetime(2026, 4, 17, 18, 10, 29),
         inputted_by="Kaitlyn Wain",
+        event_id="abc-123",
         dog_name="Cece",
         source=EventSource.GS_FOSTER_QUESTIONNAIRE,
         concerns=[BehaviorConcern.HANDLING_SENSITIVITY],
@@ -63,6 +67,7 @@ def make_medication_event() -> MedicationBehaviorEvent:
     return MedicationBehaviorEvent(
         timestamp=datetime(2026, 4, 2, 10, 47, 20),
         inputted_by="Hannah",
+        event_id="hannah-cece",
         dog_name="Cece",
         source=EventSource.GS_MEDICATIONS,
         concerns=[BehaviorConcern.OTHER],
@@ -141,3 +146,23 @@ def test_same_event_is_not_saved_twice(test_db):
     events = get_behavior_events_for_dog("Cece")
 
     assert len(events) == 1
+
+def test_save_behavior_event_inserts_and_updates(test_db):
+    original_event = make_foster_event()
+
+    save_behavior_event(original_event)
+
+    events = get_behavior_events_for_dog("Cece")
+
+    assert len(events) == 1
+    assert events[0].summary == original_event.summary
+
+    updated_event = make_foster_event()
+    updated_event.summary = "Cece is doing much better now."
+
+    save_behavior_event(updated_event)
+
+    events = get_behavior_events_for_dog("Cece")
+
+    assert len(events) == 1
+    assert events[0].summary == "Cece is doing much better now."

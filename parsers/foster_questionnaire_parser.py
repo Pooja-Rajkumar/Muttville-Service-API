@@ -143,7 +143,7 @@ def parse_foster_questionnaire(
                     row["Submission Date/Time"],
                     "%m/%d/%Y %H:%M:%S",
                 ),
-                id=clean_string(row.get("Unique submission ID")),
+                event_id=clean_string(row.get("Unique submission ID")),
                 inputted_by=clean_string(row.get("Your Name")),
                 dog_name=clean_string(row.get("Mutt's Name")),
                 source=EventSource.GS_FOSTER_QUESTIONNAIRE,
@@ -216,8 +216,6 @@ def parse_foster_questionnaire(
                 baths=baths,
                 leash_behavior=leash_behavior,
                 solo_mutt_behavior=solo_mutt_behavior,
-
-                raw_data=row,
             )
         )
 
