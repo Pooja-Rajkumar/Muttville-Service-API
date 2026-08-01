@@ -18,6 +18,7 @@ class EventSource(str, Enum):
     GS_FOSTER_QUESTIONNAIRE = "Google Sheet - Foster Questionnaire"
     GS_BEHAVIORAL_OUTREACH_FOSTER = "Google Sheet - Behavioral Outreach Foster"
     SLACK_BEHAVIOR_UPDATES = "Slack - Behavior Updates"
+    DOG_TIMELINE_UI = "Dog Timeline - Manual Entry"
 
 class BehaviorEvent(BaseModel):
     timestamp: datetime

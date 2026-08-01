@@ -45,7 +45,10 @@ def get_all_behavior_events():
         """
     ).fetchall()
     connection.close()
-    return [dict(row) for row in rows]
+    events = []
+    for row in rows:
+        events.append(convert_row_to_event(row))
+    return events
 
 def behavior_event_changed(
     existing_event: BehaviorEvent,

@@ -1,6 +1,6 @@
 import streamlit as st
 
-from database.database import save_behavior_event
+from database.database import get_all_behavior_events, save_behavior_event
 from forms.common import (
     build_common_event_data,
     render_common_fields,
@@ -21,7 +21,7 @@ from forms.trainer_form import (
     create_trainer_event,
     render_trainer_fields,
 )
-from main import get_dog_info
+from main import get_dog_info, store_dog_info
 
 
 st.set_page_config(
@@ -62,10 +62,11 @@ def concern_chip(concern: str) -> str:
     """
 
 
-timeline_tab, add_event_tab = st.tabs(
+timeline_tab, add_event_tab, database_tab = st.tabs(
     [
         "View timeline",
         "Add event",
+        "View database"
     ]
 )
 
@@ -287,15 +288,68 @@ with add_event_tab:
                         event_specific_fields,
                     )
 
-                # This is where the variables are passed
-                # into your backend/database code.
-                save_behavior_event(event)
-
-                st.success(
-                    f"Saved {event_type.lower()} event "
-                    f"for {pup_name}."
+                
+                store_dog_info(event)
+                st.session_state["save_message"] = (
+                    f"Saved {event_type.lower()} event for {pup_name}."
                 )
 
+                st.rerun()
             except Exception as exc:
                 st.error("Could not save the event.")
                 st.exception(exc)
+
+with database_tab:
+    st.header("All database events")
+
+    try:
+        events = get_all_behavior_events()
+
+        if not events:
+            st.info("No behavior events are stored yet.")
+
+        else:
+            table_rows = []
+
+            for event in events:
+                concern_names = []
+
+                for concern in event.concerns:
+                    concern_names.append(concern.value)
+
+                table_rows.append(
+                    {
+                        "Event ID": event.event_id,
+                        "Event Type": event.__class__.__name__,
+                        "Timestamp": event.timestamp,
+                        "Pup Name": event.dog_name,
+                        "Source": event.source.value,
+                        "Inputted By": event.inputted_by,
+                        "Concerns": ", ".join(concern_names),
+                        "Summary": event.summary,
+                    }
+                )
+
+            st.dataframe(
+                table_rows,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Timestamp": st.column_config.DatetimeColumn(
+                        "Timestamp",
+                        format="MMM D, YYYY h:mm a",
+                    ),
+                    "Summary": st.column_config.TextColumn(
+                        "Summary",
+                        width="large",
+                    ),
+                    "Event ID": st.column_config.TextColumn(
+                        "Event ID",
+                        width="medium",
+                    ),
+                },
+            )
+
+    except Exception as exc:
+        st.error("Could not load database events.")
+        st.exception(exc)

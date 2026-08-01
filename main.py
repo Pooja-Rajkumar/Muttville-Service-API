@@ -52,6 +52,26 @@ def get_dog_info(dog_name:str):
 
     return timeline
 
+def store_dog_info(event: BehaviorEvent):
+    # Get info from app.py here 
+    # Parse it into an event type 
+    # Store the event 
+    try:
+        print("storing dog info: ", event)
+        save_behavior_event(event)
+    except Exception as e:
+        print(f"Error occurred while storing dog info: {e}")
+
+# Temporary endpoint to return dog info for testing purposes
+@app.get("/return_dog_info/{dog_name}", response_model=list[BehaviorEvent])
+def return_dog_info(dog_name: str):
+    try:
+        events = get_behavior_events_for_dog(dog_name)
+        print(f"Retrieved {len(events)} events for dog: {dog_name}")
+        return events
+    except Exception as e:
+        print(f"Error occurred while retrieving dog info: {e}")
+        return []
 
 def create_story():
     # Function to create a story based on the aggregated information

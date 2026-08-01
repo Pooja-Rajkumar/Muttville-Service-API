@@ -12,16 +12,15 @@ EVENT_MODELS = {
     "FosterBehaviorEvent": FosterBehaviorEvent,
     "MedicationBehaviorEvent": MedicationBehaviorEvent,
     "TrainerBehaviorEvent": TrainerBehaviorEvent,
-    "IntakeEvent": IntakeEvent,
-}
+    "IntakeEvent": IntakeEvent,}
 
 def convert_row_to_event(row):
-    event_model = EVENT_MODELS[row["event_type"]]
+    event_model = EVENT_MODELS[row["event_type"]] # return the class that we want 
 
-    event_data = json.loads(row["event_data"])
-    concerns = json.loads(row["concerns"])
+    event_data = json.loads(row["event_data"]) # dump event data into dictionary
+    concerns = json.loads(row["concerns"]) # dump concerns into dictionary
 
-    return event_model(
+    return event_model( # instantiate the class and dump all the extraneous data into the class 
         timestamp=row["timestamp"],
         event_id=row["event_id"],
         inputted_by=row["inputted_by"],
