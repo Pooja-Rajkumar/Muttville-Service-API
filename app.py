@@ -22,6 +22,7 @@ from forms.trainer_form import (
     render_trainer_fields,
 )
 from main import get_dog_info, store_dog_info
+from models.behavior_event import BehaviorConcern
 
 
 st.set_page_config(
@@ -305,6 +306,49 @@ with database_tab:
     try:
         events = get_all_behavior_events()
 
+        selected_concern = st.selectbox(
+        "Behavior concern",
+        options=list(BehaviorConcern),
+        format_func=lambda concern: concern.value,
+    )   
+        matching_events = []
+
+        for event in events:
+            if selected_concern in event.concerns:
+                matching_events.append(event)
+
+        if not matching_events:
+            st.info(
+                f"No dogs currently have "
+                f"{selected_concern.value}."
+            )
+
+        else:
+            st.caption(
+                f"{len(matching_events)} matching events"
+            )
+
+            table_rows = []
+
+        for event in matching_events:
+            table_rows.append(
+                {
+                    "Pup Name": event.dog_name,
+                    "Behavior Concern": selected_concern.value,
+                    "Event Type": event.__class__.__name__,
+                    "Timestamp": event.timestamp,
+                    "Source": event.source.value,
+                    "Inputted By": event.inputted_by,
+                    "Summary": event.summary,
+                }
+            )
+
+        st.dataframe(
+            table_rows,
+            use_container_width=True,
+            hide_index=True,
+        )
+        
         if not events:
             st.info("No behavior events are stored yet.")
 
