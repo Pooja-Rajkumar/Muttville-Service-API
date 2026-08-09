@@ -55,7 +55,7 @@ def save_google_oauth_state(state: str):
 
 def consume_google_oauth_state(state: str) -> bool:
     connection = get_db_connection()
-
+    authenticated = False
     row = connection.execute(
         """
         SELECT state
@@ -66,6 +66,7 @@ def consume_google_oauth_state(state: str) -> bool:
     ).fetchone()
 
     if row:
+        authenticated = True
         connection.execute(
             """
             DELETE FROM google_oauth_states
@@ -73,12 +74,11 @@ def consume_google_oauth_state(state: str) -> bool:
             """,
             (state,),
         )
-
         connection.commit()
 
     connection.close()
 
-    return row is not None
+    return authenticated
 
 def get_all_behavior_events():
     connection = get_db_connection()

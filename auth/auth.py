@@ -10,21 +10,10 @@ from google.oauth2.credentials import Credentials
 
 from database.database import consume_google_oauth_state, save_google_oauth_state
 
-SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets.readonly",
-]
-
-GOOGLE_AUTH_URL = (
-    "https://accounts.google.com/o/oauth2/v2/auth"
-)
-
-GOOGLE_TOKEN_URL = (
-    "https://oauth2.googleapis.com/token"
-)
-
-REDIRECT_URI = (
-    "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/"
-)
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+REDIRECT_URI = "http://localhost:8501/"
 
 def build_google_login_url() -> str:
     state = secrets.token_urlsafe(16)
@@ -82,11 +71,11 @@ def exchange_code_for_credentials(
     return credentials
 
 
-def complete_google_login() -> bool:
-    callback_data = check_if_google_callback()
+def authenticate_user() -> bool:
+    callback_data = check_if_google_callback() # is this page reloading because of google login or just a refresh?
     if callback_data is None:
         return False
-
+    
     valid_state = consume_google_oauth_state(callback_data)
     if not valid_state:
         st.error("Invalid OAuth state.")
@@ -102,7 +91,9 @@ def complete_google_login() -> bool:
         return False
 
 def get_credentials() -> Credentials | None:
+    print("Inside get credentials")
     credentials = st.session_state.get("google_credentials")
+    print("Current credentials:", credentials)
     if credentials is None:
         return None
 
@@ -117,6 +108,7 @@ def get_credentials() -> Credentials | None:
     return credentials
 
 def get_client():
+    print("Getting google client")
     credentials = get_credentials()
 
     if credentials is None:
