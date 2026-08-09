@@ -28,7 +28,7 @@ from models.behavior_event import BehaviorConcern
 st.set_page_config(
     page_title="Muttville Dog Timeline",
     page_icon="🐶",
-    layout="centered",
+    layout="wide",
 )
 
 st.title("🐶 Muttville Dog Timeline")
@@ -335,11 +335,11 @@ with database_tab:
                 {
                     "Pup Name": event.dog_name,
                     "Behavior Concern": selected_concern.value,
-                    "Event Type": event.__class__.__name__,
                     "Timestamp": event.timestamp,
-                    "Source": event.source.value,
                     "Inputted By": event.inputted_by,
                     "Summary": event.summary,
+                    "Source": event.source.value,
+
                 }
             )
 
@@ -348,7 +348,7 @@ with database_tab:
             use_container_width=True,
             hide_index=True,
         )
-        
+
         if not events:
             st.info("No behavior events are stored yet.")
 
@@ -364,13 +364,13 @@ with database_tab:
                 table_rows.append(
                     {
                         "Event ID": event.event_id,
-                        "Event Type": event.__class__.__name__,
                         "Timestamp": event.timestamp,
                         "Pup Name": event.dog_name,
-                        "Source": event.source.value,
                         "Inputted By": event.inputted_by,
                         "Concerns": ", ".join(concern_names),
                         "Summary": event.summary,
+                        "Source": event.source.value,
+
                     }
                 )
 

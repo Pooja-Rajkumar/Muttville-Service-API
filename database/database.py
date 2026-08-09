@@ -31,9 +31,54 @@ def create_tables():
         )
     """)
 
+    connection.execute("""
+    CREATE TABLE IF NOT EXISTS google_oauth_states (
+        state TEXT PRIMARY KEY
+        )
+    """)
     connection.commit()
     connection.close()
 
+def save_google_oauth_state(state: str):
+    connection = get_db_connection()
+
+    connection.execute(
+        """
+        INSERT INTO google_oauth_states (state)
+        VALUES (?)
+        """,
+        (state,),
+    )
+
+    connection.commit()
+    connection.close()
+
+def consume_google_oauth_state(state: str) -> bool:
+    connection = get_db_connection()
+
+    row = connection.execute(
+        """
+        SELECT state
+        FROM google_oauth_states
+        WHERE state = ?
+        """,
+        (state,),
+    ).fetchone()
+
+    if row:
+        connection.execute(
+            """
+            DELETE FROM google_oauth_states
+            WHERE state = ?
+            """,
+            (state,),
+        )
+
+        connection.commit()
+
+    connection.close()
+
+    return row is not None
 
 def get_all_behavior_events():
     connection = get_db_connection()
