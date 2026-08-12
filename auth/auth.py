@@ -8,12 +8,12 @@ from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-from database.database import consume_google_oauth_state, save_google_oauth_state
+from database.database import save_google_oauth_state, validate_google_oauth_state
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-REDIRECT_URI = "http://localhost:8501/"
+REDIRECT_URI = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/" # or use localhost for testing: "http://localhost:8501/"
 
 def build_google_login_url() -> str:
     state = secrets.token_urlsafe(16)
@@ -35,7 +35,9 @@ def check_if_google_callback():
     query_params = st.query_params
     try:
         code = query_params.get("code")
+        print("code from query params: ", code)
         state = query_params.get("state")
+        print("state from query params: ", state)
     except Exception as e:
         print(f"Error occurred while fetching Google callback data: {e}")
         return None, None
@@ -75,25 +77,22 @@ def authenticate_user() -> bool:
     callback_data = check_if_google_callback() # is this page reloading because of google login or just a refresh?
     if callback_data is None:
         return False
-    
-    valid_state = consume_google_oauth_state(callback_data)
+    code, state = callback_data
+    valid_state = validate_google_oauth_state(state)
     if not valid_state:
         st.error("Invalid OAuth state.")
         return False
-    
-    code, state = callback_data
     try:
         credentials = exchange_code_for_credentials(code)
         st.session_state["google_credentials"] = credentials
+        st.query_params.clear()
         return True
     except Exception as e:
         st.error(f"Error during Google login: {e}")
         return False
 
 def get_credentials() -> Credentials | None:
-    print("Inside get credentials")
     credentials = st.session_state.get("google_credentials")
-    print("Current credentials:", credentials)
     if credentials is None:
         return None
 
@@ -108,7 +107,6 @@ def get_credentials() -> Credentials | None:
     return credentials
 
 def get_client():
-    print("Getting google client")
     credentials = get_credentials()
 
     if credentials is None:
