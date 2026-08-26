@@ -13,7 +13,7 @@ from database.database import save_google_oauth_state, validate_google_oauth_sta
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-REDIRECT_URI = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/" # or use localhost for testing: "http://localhost:8501/"
+REDIRECT_URI = "http://localhost:8501/" # or use localhost for testing: "http://localhost:8501/"
 
 def build_google_login_url() -> str:
     state = secrets.token_urlsafe(16)

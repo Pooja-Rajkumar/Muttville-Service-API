@@ -1,14 +1,17 @@
 import json
-import sqlite3
+import psycopg
+from psycopg.rows import dict_row
+import streamlit as st
 
 from database.deserialize_behavior_events import convert_row_to_event
 from models.behavior_event import BehaviorEvent
 
 
 def get_db_connection():
-    connection = sqlite3.connect("muttville.db")
-    connection.row_factory = sqlite3.Row
-    return connection
+    return psycopg.connect(
+        st.secrets["database"]["db_url"],
+        row_factory=dict_row,
+    )
 
 
 def create_tables():
@@ -16,7 +19,7 @@ def create_tables():
 
     connection.execute("""
         CREATE TABLE IF NOT EXISTS behavior_events (
-            id INTEGER PRIMARY KEY,
+            id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             event_id TEXT NOT NULL,
             event_type TEXT NOT NULL,
             timestamp TEXT NOT NULL,
@@ -45,7 +48,7 @@ def save_google_oauth_state(state: str):
     connection.execute(
         """
         INSERT INTO google_oauth_states (state)
-        VALUES (?)
+        VALUES (%s)
         """,
         (state,),
     )
@@ -60,7 +63,7 @@ def validate_google_oauth_state(state: str) -> bool:
         """
         SELECT state
         FROM google_oauth_states
-        WHERE state = ?
+        WHERE state = %s
         """,
         (state,),
     ).fetchone()
@@ -72,7 +75,7 @@ def validate_google_oauth_state(state: str) -> bool:
     connection.execute(
         """
         DELETE FROM google_oauth_states
-        WHERE state = ?
+        WHERE state = %s
         """,
         (state,),
     )
@@ -111,7 +114,7 @@ def get_behavior_events_for_dog(
         """
         SELECT *
         FROM behavior_events
-        WHERE dog_name = ?
+        WHERE dog_name = %s
         ORDER BY timestamp DESC
         """,
         (dog_name,),
@@ -129,8 +132,8 @@ def get_existing_behavior_event(event: BehaviorEvent):
         """
         SELECT *
         FROM behavior_events
-        WHERE source = ?
-        AND event_id = ?
+        WHERE source = %s
+        AND event_id = %s
         """,
         (
             event.source.value,
@@ -194,7 +197,7 @@ def insert_behavior_event(event: BehaviorEvent):
             summary,
             event_data
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """,
         (
             event.event_id,
@@ -239,15 +242,15 @@ def update_behavior_event(event: BehaviorEvent):
         """
         UPDATE behavior_events
         SET
-            event_type = ?,
-            timestamp = ?,
-            inputted_by = ?,
-            dog_name = ?,
-            concerns = ?,
-            summary = ?,
-            event_data = ?
-        WHERE source = ?
-        AND event_id = ?
+            event_type = %s,
+            timestamp = %s,
+            inputted_by = %s,
+            dog_name = %s,
+            concerns = %s,
+            summary = %s,
+            event_data = %s
+        WHERE source = %s
+        AND event_id = %s
         """,
         (
             event.__class__.__name__,
