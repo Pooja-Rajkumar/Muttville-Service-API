@@ -319,10 +319,11 @@ with database_tab:
         events = get_all_behavior_events()
 
         selected_concern = st.selectbox(
-        "Behavior concern",
-        options=list(BehaviorConcern),
-        format_func=lambda concern: concern.value,
-    )   
+            "Behavior concern",
+            options=list(BehaviorConcern),
+            format_func=lambda concern: concern.value,
+        )
+
         matching_events = []
 
         for event in events:
@@ -334,38 +335,35 @@ with database_tab:
                 f"No dogs currently have "
                 f"{selected_concern.value}."
             )
-
         else:
             st.caption(
                 f"{len(matching_events)} matching events"
             )
 
-            table_rows = []
+            matching_table_rows = []
 
-        for event in matching_events:
-            table_rows.append(
-                {
-                    "Pup Name": event.dog_name,
-                    "Behavior Concern": selected_concern.value,
-                    "Timestamp": event.timestamp,
-                    "Inputted By": event.inputted_by,
-                    "Summary": event.summary,
-                    "Source": event.source.value,
+            for event in matching_events:
+                matching_table_rows.append(
+                    {
+                        "Pup Name": event.dog_name,
+                        "Behavior Concern": selected_concern.value,
+                        "Timestamp": event.timestamp,
+                        "Inputted By": event.inputted_by,
+                        "Summary": event.summary,
+                        "Source": event.source.value,
+                    }
+                )
 
-                }
+            st.dataframe(
+                matching_table_rows,
+                use_container_width=True,
+                hide_index=True,
             )
-
-        st.dataframe(
-            table_rows,
-            use_container_width=True,
-            hide_index=True,
-        )
 
         if not events:
             st.info("No behavior events are stored yet.")
-
         else:
-            table_rows = []
+            all_table_rows = []
 
             for event in events:
                 concern_names = []
@@ -373,7 +371,7 @@ with database_tab:
                 for concern in event.concerns:
                     concern_names.append(concern.value)
 
-                table_rows.append(
+                all_table_rows.append(
                     {
                         "Event ID": event.event_id,
                         "Timestamp": event.timestamp,
@@ -382,12 +380,11 @@ with database_tab:
                         "Concerns": ", ".join(concern_names),
                         "Summary": event.summary,
                         "Source": event.source.value,
-
                     }
                 )
 
             st.dataframe(
-                table_rows,
+                all_table_rows,
                 use_container_width=True,
                 hide_index=True,
                 column_config={
