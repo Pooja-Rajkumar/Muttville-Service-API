@@ -1,6 +1,7 @@
 import streamlit as st
 
 from auth.auth import authenticate_user, build_google_login_url, get_client
+from backfill import backfill_all, backfill_medications
 from database.database import get_all_behavior_events, save_behavior_event
 from forms.common import (
     build_common_event_data,
@@ -41,6 +42,7 @@ if login_completed:
 google_client = get_client()
 if google_client:
     st.caption( "Logged into google")
+    # backfill_all()
 else:
     st.caption("Not logged in.")
     st.link_button("Connect Google",build_google_login_url(),)  
