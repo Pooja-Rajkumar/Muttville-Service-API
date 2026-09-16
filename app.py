@@ -80,6 +80,34 @@ def concern_chip(concern: str) -> str:
         </span>
     """
 
+@st.dialog("Behavior Event", width="large")
+def show_event_details(event):
+    st.subheader(event.dog_name)
+
+    concern_names = []
+
+    for concern in event.concerns:
+        concern_names.append(concern.value)
+
+    st.write(
+        f"**Behavior Concern:** {', '.join(concern_names)}"
+    )
+
+    st.write(
+        f"**Timestamp:** {event.timestamp.strftime('%b %d, %Y %I:%M %p')}"
+    )
+
+    st.write(
+        f"**Inputted By:** {event.inputted_by}"
+    )
+
+    st.write("**Summary:**")
+    st.write(event.summary)
+
+    st.write(
+        f"**Source:** {event.source.value}"
+    )
+
 
 timeline_tab, add_event_tab, database_tab = st.tabs(
     [
@@ -317,33 +345,7 @@ with add_event_tab:
             except Exception as exc:
                 st.error("Could not save the event.")
                 st.exception(exc)
-@st.dialog("Behavior Event", width="large")
-def show_event_details(event):
-    st.subheader(event.dog_name)
 
-    concern_names = []
-
-    for concern in event.concerns:
-        concern_names.append(concern.value)
-
-    st.write(
-        f"**Behavior Concern:** {', '.join(concern_names)}"
-    )
-
-    st.write(
-        f"**Timestamp:** {event.timestamp.strftime('%b %d, %Y %I:%M %p')}"
-    )
-
-    st.write(
-        f"**Inputted By:** {event.inputted_by}"
-    )
-
-    st.write("**Summary:**")
-    st.write(event.summary)
-
-    st.write(
-        f"**Source:** {event.source.value}"
-    )
 
 with database_tab:
     st.header("All database events")
@@ -421,102 +423,6 @@ with database_tab:
                 selected_event = filtered_events[selected_index]
 
                 show_event_details(selected_event)
-
-    except Exception as e:
-        st.error(f"Error loading database: {e}")
-    # try:
-    #     events = get_all_behavior_events()
-    #     selected_concern = st.selectbox(
-    #     "Behavior concern",
-    #     options=[None] + list(BehaviorConcern),
-    #     format_func=lambda concern: "All concerns" if concern is None else concern.value,
-    # )
-    #     if selected_concern is None:
-    #         filtered_events = events
-    #     else:
-    #         filtered_events = []
-    #         for event in events:
-    #             if selected_concern in event.concerns:
-    #                 filtered_events.append(event)
-                
-        # # selected_concern = st.selectbox(
-        # #     "Behavior concern",
-        # #     options=list(BehaviorConcern),
-        # #     format_func=lambda concern: concern.value,
-        # # )
-
-        # if not filtered_events:
-        #     st.info("No behavior events are stored yet.")
-        # else:
-        #     all_table_rows = []
-
-        #     for event in filtered_events:
-        #         concern_names = []
-
-        #         for concern in event.concerns:
-        #             concern_names.append(concern.value)
-
-        #         all_table_rows.append(
-        #             {
-        #                 "Timestamp": event.timestamp,
-        #                 "Pup Name": event.dog_name,
-        #                 "Behavior Concern": ", ".join(concern_names),
-        #                 "Inputted By": event.inputted_by,
-        #                 "Summary": event.summary,
-        #                 "Source": event.source.value,
-        #             }
-        #         )
-
-        #     st.dataframe(
-        #         all_table_rows,
-        #         use_container_width=True,
-        #         hide_index=True,
-        #         height=700,
-        #         on_select="rerun",
-        #         selection_mode="single-row",
-        #         column_config={
-        #             "Timestamp": st.column_config.DatetimeColumn(
-        #                 "Timestamp",
-        #                 format="MMM D, YYYY h:mm a",
-        #                 width="medium",
-        #             ),
-        #             "Pup Name": st.column_config.TextColumn(
-        #                 "Pup Name",
-        #                 width="medium",
-        #             ),
-        #             "Inputted By": st.column_config.TextColumn(
-        #                 "Inputted By",
-        #                 width="small",
-        #             ),
-        #             "Behavior Concern": st.column_config.TextColumn(
-        #                 "Behavior Concern",
-        #                 width="medium",
-        #             ),
-        #             "Summary": st.column_config.TextColumn(
-        #                 "Summary",
-        #                 width="medium",
-        #             ),
-        #             "Source": st.column_config.TextColumn(
-        #                 "Source",
-        #                 width="medium",
-        #             ),
-        #         },
-        #     )
-        #     if selection.selection.rows:
-        #         selected_index = selection.selection.rows[0]
-
-        #         selected_event = filtered_events[selected_index]
-
-        #         st.subheader(f"{selected_event.dog_name}")
-
-        #         st.write(f"**Behavior Concern:** {', '.join(
-        #             concern.value for concern in selected_event.concerns
-        #         )}")
-
-        #         st.write(f"**Summary:**")
-        #         st.write(selected_event.summary)
-
-        #         st.write(f"**Source:** {selected_event.source.value}")
 
     except Exception as exc:
         st.error("Could not load database events.")

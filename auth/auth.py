@@ -52,7 +52,7 @@ def exchange_code_for_credentials(
         "code": authorization_code,
         "client_id": st.secrets["google"]["client_id"],
         "client_secret": st.secrets["google"]["client_secret"],
-        "redirect_uri": REDIRECT_URI,
+        "redirect_uri": REDIRECT_URI_PROD,
         "grant_type": "authorization_code",
     }
 
