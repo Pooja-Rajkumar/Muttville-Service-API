@@ -340,6 +340,7 @@ with add_event_tab:
                 st.session_state["save_message"] = (
                     f"Saved {event_type.lower()} event for {pup_name}."
                 )
+                st.toast("Saved to database! 🐶", icon="✅")
 
                 st.rerun()
             except Exception as exc:
