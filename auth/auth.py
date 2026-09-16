@@ -13,15 +13,14 @@ from database.database import save_google_oauth_state, validate_google_oauth_sta
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-REDIRECT_URI = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/" # or use localhost for testing: "http://localhost:8501/"
-
+REDIRECT_URI_LOCAL = "http://localhost:8501/" # https://dy9rxmwhhd56yjutls8uqs.streamlit.app/ or testing http://localhost:8501/
+REDIRECT_URI_PROD = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/"
 def build_google_login_url() -> str:
     state = secrets.token_urlsafe(16)
     save_google_oauth_state(state)
-
     params = {
         "client_id": st.secrets["google"]["client_id"],
-        "redirect_uri": REDIRECT_URI,
+        "redirect_uri": REDIRECT_URI_PROD,
         "response_type": "code",
         "scope": " ".join(SCOPES),
         "state": state,

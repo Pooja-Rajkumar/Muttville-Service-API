@@ -108,8 +108,8 @@ def behavior_event_changed(
 
 def get_behavior_events_for_dog(
     dog_name: str,
+    connection
 ) -> list[BehaviorEvent]:
-    connection = get_db_connection()
     rows = connection.execute(
         """
         SELECT *
@@ -119,15 +119,12 @@ def get_behavior_events_for_dog(
         """,
         (dog_name,),
     ).fetchall()
-    connection.close()
     events = []
     for row in rows:
         events.append(convert_row_to_event(row))
     return events
 
-def get_existing_behavior_event(event: BehaviorEvent):
-    connection = get_db_connection()
-
+def get_existing_behavior_event(event: BehaviorEvent, connection):
     row = connection.execute(
         """
         SELECT *
@@ -141,28 +138,51 @@ def get_existing_behavior_event(event: BehaviorEvent):
         ),
     ).fetchone()
 
-    connection.close()
-
     return row
 
 
 def save_behavior_event(event: BehaviorEvent):
-    existing_row = get_existing_behavior_event(event) # will be none if not in table 
+    connection = get_db_connection()
+    existing_row = get_existing_behavior_event(event, connection) 
     if existing_row:
-        print("Entry already exists for event", event)
+        print("Entry already exists for event")
         existing_event = convert_row_to_event(existing_row)
         if existing_event != event: # data has been updated
             print("Updating behavior event since data has been changed...")
-            update_behavior_event(event)
+            update_behavior_event(event, connection)
         else:
             print("Duplicate entry, skipping...")
     else: 
         print("Creating new db entry...")
         # the event does not exist yet, so add it 
-        insert_behavior_event(event)
+        insert_behavior_event(event, connection)
+    connection.commit()
+    connection.close()
 
-def insert_behavior_event(event: BehaviorEvent):
+def save_behavior_events(events: list[BehaviorEvent]):
     connection = get_db_connection()
+    for event in events:
+        existing_row = connection.execute(
+            """
+            SELECT *
+            FROM behavior_events
+            WHERE source = %s
+            AND event_id = %s
+            """,
+            (event.source.value, event.event_id),
+        ).fetchone()
+
+        if existing_row:
+            existing_event = convert_row_to_event(existing_row)
+            if existing_event != event:
+                update_behavior_event(event, connection)
+        else:
+            insert_behavior_event(event, connection)
+
+    connection.commit()
+    connection.close()
+
+def insert_behavior_event(event: BehaviorEvent, connection):
 
     concerns_json = json.dumps(
         [concern.value for concern in event.concerns]
@@ -212,11 +232,8 @@ def insert_behavior_event(event: BehaviorEvent):
         ),
     )
 
-    connection.commit()
-    connection.close()
 
-def update_behavior_event(event: BehaviorEvent):
-    connection = get_db_connection()
+def update_behavior_event(event: BehaviorEvent, connection):
 
     concerns_json = json.dumps(
         [concern.value for concern in event.concerns]
@@ -264,6 +281,3 @@ def update_behavior_event(event: BehaviorEvent):
             event.event_id,
         ),
     )
-
-    connection.commit()
-    connection.close()

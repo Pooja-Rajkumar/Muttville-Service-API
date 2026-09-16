@@ -1,5 +1,5 @@
 from auth.google_sheet_connector import get_google_sheet
-from database.database import save_behavior_event
+from database.database import save_behavior_event, save_behavior_events
 from helpers.constants import GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE, GOOGLE_SHEET_KEY_MEDICATIONS, GOOGLE_SHEET_KEY_MUTT_CHEAT_SHEET, GOOGLE_SHEET_KEY_SLACK
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
 from parsers.foster_questionnaire_parser import parse_foster_questionnaire
@@ -10,16 +10,19 @@ def backfill_medications():
     sheet = get_google_sheet(GOOGLE_SHEET_KEY_MEDICATIONS)
     sheet_data = sheet.worksheet("Form Responses 1").get_all_records()
     events = parse_medication_info(sheet_data)
-    for event in events:
-        save_behavior_event(event)
+    save_behavior_events(events)
+    # for event in events:
+    #     save_behavior_event(event)
 
 def backfill_trainer_responses():
     sheet = get_google_sheet(GOOGLE_SHEET_KEY_MUTT_CHEAT_SHEET)
     tab_id = 1665262541
     sheet_data = sheet.get_worksheet_by_id(tab_id).get_all_records()
     events = parse_trainer_info(sheet_data)
-    for event in events:
-        save_behavior_event(event)
+    save_behavior_events(events)
+
+    # for event in events:
+    #     save_behavior_event(event)
 
 def backfill_foster_questionnaire():
     # aggregate foster notes questionaire info from google sheet once workflow is up 
@@ -28,8 +31,10 @@ def backfill_foster_questionnaire():
     worksheet = sheet.get_worksheet_by_id(target_sheet_id)
     sheet_data = worksheet.get_all_records()
     events = parse_foster_questionnaire(sheet_data)
-    for event in events:
-        save_behavior_event(event)
+    save_behavior_events(events)
+
+    # for event in events:
+    #     save_behavior_event(event)
 
 def backfill_intake():
     # aggregate intake info from google sheet once workflow is up 
@@ -38,15 +43,17 @@ def backfill_intake():
     worksheet = sheet.get_worksheet_by_id(target_sheet_id)
     sheet_data = worksheet.get_all_records()
     events = parse_foster_questionnaire(sheet_data)
-    for event in events:
-        save_behavior_event(event)
+    save_behavior_events(events)
+    # for event in events:
+    #     save_behavior_event(event)
 
 def backfill_slack():
     sheet = get_google_sheet(GOOGLE_SHEET_KEY_SLACK)
     sheet_data = sheet.worksheet("Form Responses").get_all_records()
     events = parse_slack_behavior_updates(sheet_data)
-    for event in events:
-        save_behavior_event(event)
+    save_behavior_events(events)
+    # for event in events:
+    #     save_behavior_event(event)
 
 def backfill_all():
     backfill_medications()

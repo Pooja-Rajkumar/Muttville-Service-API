@@ -8,8 +8,6 @@ from models.behavior_modification_event import MedicationBehaviorEvent, TrainerB
 def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
     for row in rows:
-        print("referral date = ", row["Referral Date "])
-        print("parse_timestamp = ", parse_timestamp(row["Referral Date "]))
         timestamp = parse_timestamp(row["Referral Date "])
         dog_name = clean_string(row.get("Dog Name"))
         events.append(

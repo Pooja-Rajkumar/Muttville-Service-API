@@ -6,7 +6,7 @@ from channels.foster_questionnaire_responses import get_foster_notes_questionair
 from channels.intake import get_intake_info
 from channels.slack import get_slack_info
 from create_timeline import create_timeline
-from database.database import create_tables, get_all_behavior_events, get_behavior_events_for_dog, save_behavior_event
+from database.database import create_tables, get_all_behavior_events, get_behavior_events_for_dog, get_db_connection, save_behavior_event
 from models.behavior_event import BehaviorEvent
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
 from parsers.foster_questionnaire_parser import parse_foster_questionnaire
@@ -66,7 +66,8 @@ def store_dog_info(event: BehaviorEvent):
 @app.get("/return_dog_info/{dog_name}", response_model=list[BehaviorEvent])
 def return_dog_info(dog_name: str):
     try:
-        events = get_behavior_events_for_dog(dog_name)
+        connection = get_db_connection()
+        events = get_behavior_events_for_dog(dog_name, connection)
         print(f"Retrieved {len(events)} events for dog: {dog_name}")
         return events
     except Exception as e:
