@@ -436,7 +436,14 @@ with database_tab:
                 selected_index = selection.selection.rows[0]
                 selected_event = filtered_events[selected_index]
 
-                show_event_details(selected_event)
+                selected_event_id = selected_event.event_id
+
+                if st.session_state.get("opened_event_id") != selected_event_id:
+                    st.session_state["opened_event_id"] = selected_event_id
+                    show_event_details(selected_event)
+
+            else:
+                st.session_state["opened_event_id"] = None
 
     except Exception as exc:
         st.error("Could not load database events.")
