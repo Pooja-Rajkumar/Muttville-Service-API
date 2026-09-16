@@ -34,9 +34,7 @@ def check_if_google_callback():
     query_params = st.query_params
     try:
         code = query_params.get("code")
-        print("code from query params: ", code)
         state = query_params.get("state")
-        print("state from query params: ", state)
     except Exception as e:
         print(f"Error occurred while fetching Google callback data: {e}")
         return None, None

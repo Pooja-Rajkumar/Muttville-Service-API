@@ -117,7 +117,6 @@ timeline_tab, add_event_tab, database_tab = st.tabs(
     ]
 )
 
-
 with timeline_tab:
     st.caption(
         "Search for a dog to view their care and behavior history."
@@ -135,6 +134,7 @@ with timeline_tab:
         use_container_width=True,
     )
 
+    # SEARCH FOR DOG AND SAVE RESULTS
     if search_clicked:
         dog_name = dog_name.strip()
 
@@ -146,112 +146,125 @@ with timeline_tab:
                 with st.spinner(f"Loading {dog_name}..."):
                     timeline = get_dog_info(dog_name)
 
-                if not timeline:
-                    st.info(
-                        f"No timeline events found for {dog_name}."
-                    )
-
-                else:
-                    st.divider()
-
-                    st.header(dog_name.title())
-                    st.caption(
-                        f"{len(timeline)} timeline events"
-                    )
-
-                    source_names = sorted(
-                        {
-                            event.source.value
-                            if hasattr(event.source, "value")
-                            else str(event.source)
-                            for event in timeline
-                        }
-                    )
-
-                    selected_sources = st.multiselect(
-                        "Filter by source",
-                        options=source_names,
-                        default=source_names,
-                    )
-
-                    filtered_timeline = []
-
-                    for event in timeline:
-                        source = (
-                            event.source.value
-                            if hasattr(event.source, "value")
-                            else str(event.source)
-                        )
-
-                        if source in selected_sources:
-                            filtered_timeline.append(event)
-
-                    st.caption(
-                        f"Showing {len(filtered_timeline)} of "
-                        f"{len(timeline)} events"
-                    )
-
-                    for event in filtered_timeline:
-                        source = (
-                            event.source.value
-                            if hasattr(event.source, "value")
-                            else str(event.source)
-                        )
-
-                        with st.container(border=True):
-                            date_column, source_column = st.columns(
-                                [2, 3]
-                            )
-
-                            with date_column:
-                                st.caption(
-                                    event.timestamp_display
-                                )
-
-                            with source_column:
-                                st.caption(source)
-
-                            if event.concerns:
-                                st.markdown(
-                                    "**Behavior concerns**"
-                                )
-
-                                chips = ""
-
-                                for concern in event.concerns:
-                                    concern_name = (
-                                        concern.value
-                                        if hasattr(
-                                            concern,
-                                            "value",
-                                        )
-                                        else str(concern)
-                                    )
-
-                                    chips += concern_chip(
-                                        concern_name
-                                    )
-
-                                st.markdown(
-                                    chips,
-                                    unsafe_allow_html=True,
-                                )
-
-                            if event.summary:
-                                st.write(event.summary)
-
-                            if event.inputted_by:
-                                st.write(
-                                    "**Inputted by:** "
-                                    f"{event.inputted_by}"
-                                )
+                st.session_state["timeline"] = timeline
+                st.session_state["timeline_dog"] = dog_name
 
             except Exception as exc:
-                st.error(
-                    "Could not load the dog's timeline."
-                )
+                st.error("Could not load the dog's timeline.")
                 st.exception(exc)
 
+    # DISPLAY SAVED TIMELINE
+    if "timeline" in st.session_state:
+
+        timeline = st.session_state["timeline"]
+        dog_name = st.session_state["timeline_dog"]
+
+        if not timeline:
+            st.info(
+                f"No timeline events found for {dog_name}."
+            )
+
+        else:
+            st.divider()
+
+            st.header(dog_name.title())
+
+            st.caption(
+                f"{len(timeline)} timeline events"
+            )
+
+            # Get all behavior concerns for this dog
+            concern_names = set()
+
+            for event in timeline:
+                for concern in event.concerns:
+                    concern_names.add(concern.value)
+
+            concern_names = sorted(concern_names)
+
+            # Filter
+            selected_concerns = st.multiselect(
+                "Filter by behavior concern",
+                options=concern_names,
+                default=concern_names,
+            )
+
+            filtered_timeline = []
+
+            for event in timeline:
+                for concern in event.concerns:
+                    if concern.value in selected_concerns:
+                        filtered_timeline.append(event)
+                        break
+
+            st.caption(
+                f"Showing {len(filtered_timeline)} of "
+                f"{len(timeline)} events"
+            )
+
+            # Display cards
+            for event in filtered_timeline:
+
+                with st.container(border=True):
+
+                    st.caption(
+                        event.timestamp_display
+                    )
+
+                    # Behavior concern chips
+                    if event.concerns:
+
+                        chips = ""
+
+                        for concern in event.concerns:
+
+                            concern_name = (
+                                concern.value
+                                if hasattr(concern, "value")
+                                else str(concern)
+                            )
+
+                            chips += concern_chip(
+                                concern_name
+                            )
+
+                        st.markdown(
+                            chips,
+                            unsafe_allow_html=True,
+                        )
+
+                    # Medication-specific information
+                    if (
+                        hasattr(event, "medication")
+                        and event.medication
+                    ):
+
+                        st.write(
+                            f"**Medication:** {event.medication}"
+                        )
+
+                        if event.status:
+
+                            status_names = []
+
+                            for status in event.status:
+                                status_names.append(
+                                    status.value
+                                )
+
+                            st.write(
+                                f"**Status:** "
+                                f"{', '.join(status_names)}"
+                            )
+
+                    if event.summary:
+                        st.write(event.summary)
+
+                    if event.inputted_by:
+                        st.write(
+                            "**Inputted by:** "
+                            f"{event.inputted_by}"
+                        )
 
 with add_event_tab:
     st.header("Add an event")

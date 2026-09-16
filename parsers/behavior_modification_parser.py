@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any
 from helpers.behavior_concern_classifier import classify_behavior_concern
 from helpers.helper import clean_string, parse_timestamp
-from models.behavior_modification_event import MedicationBehaviorEvent, TrainerBehaviorEvent
+from models.behavior_modification_event import MedicationBehaviorEvent, MedicationStatus, TrainerBehaviorEvent
 
 def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
@@ -60,7 +60,6 @@ def parse_medication_info(
         additional_notes = clean_string(
             row.get("Any additional notes?")
         )
-
         event = MedicationBehaviorEvent(
             timestamp=timestamp,
             event_id= timestamp + "-" + dog_name + inputted_by,
@@ -76,8 +75,12 @@ def parse_medication_info(
                 row.get("Where was behavior observed?")
             ),
             medication=clean_string(row.get("Medication")),
+            status=[
+                status.strip()
+                for status in row.get("Status", "").split(",")
+                if status.strip()
+            ]        
         )
-
         events.append(event)
 
     return events
