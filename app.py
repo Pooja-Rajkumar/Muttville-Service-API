@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import streamlit as st
 
 from auth.auth import authenticate_user, build_google_login_url, get_client
@@ -24,7 +26,7 @@ from forms.trainer_form import (
     render_trainer_fields,
 )
 from main import get_dog_info, store_dog_info
-from models.behavior_event import BehaviorConcern
+from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 
 
 st.set_page_config(
@@ -273,37 +275,45 @@ with timeline_tab:
 with add_event_tab:
     st.header("Add an event")
 
-    event_type = st.selectbox(
-        "Event type",
-        options=[
-            "Medication",
-            "Trainer",
-            "Intake",
-            "Foster Questionnaire",
-        ],
-    )
-
     with st.form(
         "add_behavior_event_form",
         clear_on_submit=True,
     ):
-        common_fields = render_common_fields()
+        pup_name = st.text_input(
+            "Pup name",
+            placeholder="Example: Cece",
+        )
 
-        event_specific_fields = {}
+        inputted_by = st.text_input(
+            "Inputted by",
+        )
 
-        if event_type == "Medication":
-            event_specific_fields = (
-                render_medication_fields()
-            )
+        date = st.date_input(
+            "Date",
+        )
 
-        elif event_type == "Trainer":
-            event_specific_fields = render_trainer_fields()
+        time = st.time_input(
+            "Time",
+        )
 
-        elif event_type == "Intake":
-            event_specific_fields = render_intake_fields()
+        concerns = st.multiselect(
+            "Behavior concerns",
+            options=list(BehaviorConcern),
+            format_func=lambda concern: concern.value,
+        )
 
-        elif event_type == "Foster Questionnaire":
-            event_specific_fields = render_foster_fields()
+        summary = st.text_area(
+            "Summary of occurrence",
+            placeholder="Describe the behavior or care update.",
+        )
+
+        location = st.selectbox(
+            "Location",
+            options=[
+                "Foster",
+                "HQ",
+            ],
+        )
 
         submit_clicked = st.form_submit_button(
             "Save event",
@@ -312,58 +322,60 @@ with add_event_tab:
         )
 
     if submit_clicked:
-        pup_name = common_fields["pup_name"].strip()
-        summary = common_fields["summary"].strip()
+        pup_name = pup_name.strip()
+        inputted_by = inputted_by.strip()
+        summary = summary.strip()
 
         if not pup_name:
             st.error("Pup name is required.")
 
+        elif not inputted_by:
+            st.error("Inputted by is required.")
+
+        elif not concerns:
+            st.error("Select at least one behavior concern.")
+
         elif not summary:
-            st.error("Summary is required.")
+            st.error("Summary of occurrence is required.")
 
         else:
             try:
-                common_event_data = build_common_event_data(
-                    event_type,
-                    common_fields,
+                timestamp = datetime.combine(
+                    date,
+                    time,
                 )
 
-                if event_type == "Medication":
-                    event = create_medication_event(
-                        common_event_data,
-                        event_specific_fields,
-                    )
+                event = BehaviorEvent(
+                    timestamp=timestamp,
+                    event_id=(
+                        str(timestamp)
+                        + "-"
+                        + pup_name
+                        + "-"
+                        + inputted_by
+                    ),
+                    inputted_by=inputted_by,
+                    dog_name=pup_name,
+                    source=EventSource.MANUAL,
+                    concerns=concerns,
+                    summary=summary,
+                    location=location,
+                )
 
-                elif event_type == "Trainer":
-                    event = create_trainer_event(
-                        common_event_data,
-                        event_specific_fields,
-                    )
-
-                elif event_type == "Intake":
-                    event = create_intake_event(
-                        common_event_data,
-                        event_specific_fields,
-                    )
-
-                else:
-                    event = create_foster_event(
-                        common_event_data,
-                        event_specific_fields,
-                    )
-
-                
                 store_dog_info(event)
-                st.session_state["save_message"] = (
-                    f"Saved {event_type.lower()} event for {pup_name}."
+
+                st.toast(
+                    "Saved to database! 🐶",
+                    icon="✅",
                 )
-                st.toast("Saved to database! 🐶", icon="✅")
 
                 st.rerun()
+
             except Exception as exc:
                 st.error("Could not save the event.")
                 st.exception(exc)
 
+   
 
 with database_tab:
     st.header("All database events")

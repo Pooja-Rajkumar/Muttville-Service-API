@@ -17,8 +17,8 @@ class EventSource(str, Enum):
     GS_MUTT_CHEAT_SHEET = "Mutt Cheat Sheet"
     GS_FOSTER_QUESTIONNAIRE = "Foster Questionnaire"
     GS_BEHAVIORAL_OUTREACH_FOSTER = "Behavioral Outreach Foster"
-    SLACK_BEHAVIOR_UPDATES = "Slack - Behavior Updates"
-    MANUAL_ENTRY = "Manual Entry"
+    SLACK_BEHAVIOR_UPDATES = "Behavior Updates"
+    MANUAL = "Manual Entry"
 
 class BehaviorEvent(BaseModel):
     timestamp: datetime
