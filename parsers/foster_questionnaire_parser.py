@@ -216,6 +216,7 @@ def parse_foster_questionnaire(
                 baths=baths,
                 leash_behavior=leash_behavior,
                 solo_mutt_behavior=solo_mutt_behavior,
+                location="Foster"
             )
         )
 

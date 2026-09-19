@@ -24,6 +24,7 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
                 concerns=[classify_behavior_concern(notes)],
                 summary=notes,
                 inputted_by=clean_string(row.get("Submitted By")),
+                location="HQ", # update the slack flow to include the location
             )
         )
 

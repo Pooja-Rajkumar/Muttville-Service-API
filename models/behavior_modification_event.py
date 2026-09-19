@@ -10,7 +10,6 @@ class MedicationStatus(str, Enum):
 
 class MedicationBehaviorEvent(BehaviorEvent):
     medication: str | None = None
-    location: str | None = None
     status: list[MedicationStatus] = []
 
 class TrainerBehaviorEvent(BehaviorEvent):

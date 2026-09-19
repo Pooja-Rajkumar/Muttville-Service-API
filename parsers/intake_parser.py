@@ -26,6 +26,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
                 concerns=[classify_behavior_concern(intake_notes)],
                 summary=intake_notes or "Intake behavior information recorded",
                 foster_response=foster_response or None,
+                location="Foster",
             )
         )
 

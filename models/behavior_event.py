@@ -13,12 +13,12 @@ class BehaviorConcern(str, Enum):
     OTHER = "Other"
 
 class EventSource(str, Enum):
-    GS_MEDICATIONS = "Google Sheet - Medications"
-    GS_MUTT_CHEAT_SHEET = "Google Sheet - Mutt Cheat Sheet"
-    GS_FOSTER_QUESTIONNAIRE = "Google Sheet - Foster Questionnaire"
-    GS_BEHAVIORAL_OUTREACH_FOSTER = "Google Sheet - Behavioral Outreach Foster"
+    GS_MEDICATIONS = "Medications"
+    GS_MUTT_CHEAT_SHEET = "Mutt Cheat Sheet"
+    GS_FOSTER_QUESTIONNAIRE = "Foster Questionnaire"
+    GS_BEHAVIORAL_OUTREACH_FOSTER = "Behavioral Outreach Foster"
     SLACK_BEHAVIOR_UPDATES = "Slack - Behavior Updates"
-    DOG_TIMELINE_UI = "Dog Timeline - Manual Entry"
+    MANUAL_ENTRY = "Manual Entry"
 
 class BehaviorEvent(BaseModel):
     timestamp: datetime
@@ -34,6 +34,5 @@ class BehaviorEvent(BaseModel):
     concerns: list[BehaviorConcern]
     summary: str
     event_id: str # This varies by channel
-    # details: dict | None = None
-    # location: str | None = None
+    location: str | None = None
     # medication: str | None = None

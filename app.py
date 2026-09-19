@@ -210,6 +210,10 @@ with timeline_tab:
                     st.caption(
                         event.timestamp_display
                     )
+                    if event.location:
+                        st.write(
+                            f"**Location:** {event.location}"
+                    )
 
                     # Behavior concern chips
                     if event.concerns:
