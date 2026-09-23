@@ -279,11 +279,16 @@ with add_event_tab:
         "add_behavior_event_form",
         clear_on_submit=True,
     ):
-        pup_name = st.text_input(
-            "Pup name",
-            placeholder="Example: Cece",
+        # pup_names_input = st.text_input(
+        #     "Pup names",
+        #     placeholder="Example: Cece, Pride, Lola",
+        # )
+        pup_names = st.multiselect(
+            "Pup names",
+            options=[],
+            placeholder="Type a pup name and press Enter",
+            accept_new_options=True,
         )
-
         inputted_by = st.text_input(
             "Inputted by",
         )
@@ -322,12 +327,11 @@ with add_event_tab:
         )
 
     if submit_clicked:
-        pup_name = pup_name.strip()
         inputted_by = inputted_by.strip()
         summary = summary.strip()
 
-        if not pup_name:
-            st.error("Pup name is required.")
+        if not pup_names:
+            st.error("Pup names are required.")
 
         elif not inputted_by:
             st.error("Inputted by is required.")
@@ -344,25 +348,25 @@ with add_event_tab:
                     date,
                     time,
                 )
+                for pup_name in pup_names:
+                    event = BehaviorEvent(
+                        timestamp=timestamp,
+                        event_id=(
+                            str(timestamp)
+                            + "-"
+                            + pup_name
+                            + "-"
+                            + inputted_by
+                        ),
+                        inputted_by=inputted_by,
+                        dog_name=pup_name,
+                        source=EventSource.MANUAL,
+                        concerns=concerns,
+                        summary=summary,
+                        location=location,
+                    )
 
-                event = BehaviorEvent(
-                    timestamp=timestamp,
-                    event_id=(
-                        str(timestamp)
-                        + "-"
-                        + pup_name
-                        + "-"
-                        + inputted_by
-                    ),
-                    inputted_by=inputted_by,
-                    dog_name=pup_name,
-                    source=EventSource.MANUAL,
-                    concerns=concerns,
-                    summary=summary,
-                    location=location,
-                )
-
-                store_dog_info(event)
+                    store_dog_info(event)
 
                 st.toast(
                     "Saved to database! 🐶",
