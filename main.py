@@ -22,14 +22,40 @@ create_tables()
     response_model=list[BehaviorEvent],
     response_model_exclude_none=True,
 )
+
 def get_dog_info(dog_name:str):
-    connection = get_db_connection()
-    try:
-        events = get_behavior_events_for_dog(dog_name, connection)
-        events.sort(key=lambda event: event.timestamp)
-        return events
-    finally:
-        connection.close()
+    medication_info = get_medications_info(dog_name)
+    normalized_medication_info = parse_medication_info(medication_info)
+
+    trainer_modifications = get_trainer_response(dog_name)
+    normalized_trainer_modifications = parse_trainer_info(trainer_modifications)
+
+    foster_questionnaire_info = get_foster_notes_questionaire_info_reviewer_expanded(dog_name)
+    normalized_foster_questionnaire_info = parse_foster_questionnaire(foster_questionnaire_info)
+
+    intake_info = get_intake_info(dog_name)
+    normalized_intake_info = parse_intake_info(intake_info)
+
+    slack_info = get_slack_info(dog_name)
+    normalized_slack_info = parse_slack_behavior_updates(slack_info)
+
+    timeline = (
+        normalized_medication_info
+        + normalized_trainer_modifications
+        + normalized_foster_questionnaire_info
+        + normalized_intake_info
+        + normalized_slack_info
+    )
+
+    timeline.sort(key=lambda event: event.timestamp)
+    return timeline
+    # connection = get_db_connection()
+    # try:
+    #     events = get_behavior_events_for_dog(dog_name, connection)
+    #     events.sort(key=lambda event: event.timestamp)
+    #     return events
+    # finally:
+    #     connection.close()
     
 def store_dog_info(event: BehaviorEvent):
     # Get info from app.py here 
