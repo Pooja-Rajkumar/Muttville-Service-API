@@ -1,3 +1,4 @@
+from asyncio import events
 import json
 from channels.behavior_modification import get_medications_info, get_trainer_response
 from fastapi import FastAPI
@@ -22,9 +23,30 @@ create_tables()
     response_model_exclude_none=True,
 )
 def get_dog_info(dog_name:str):
+    connection = get_db_connection()
+    try:
+        events = get_behavior_events_for_dog(dog_name, connection)
+        events.sort(key=lambda event: event.timestamp)
+        return events
+    finally:
+        connection.close()
+    
+def store_dog_info(event: BehaviorEvent):
+    # Get info from app.py here 
+    # Parse it into an event type 
+    # Store the event 
+    try:
+        print("storing dog info: ", event)
+        save_behavior_event(event)
+    except Exception as e:
+        print(f"Error occurred while storing dog info: {e}")
+
+# Temporary endpoint to return dog info for testing purposes
+@app.get("/get_dog_info_from_sources/{dog_name}", response_model=list[BehaviorEvent])
+def get_dog_info_from_sources(dog_name: str):
     medication_info = get_medications_info(dog_name)
     normalized_medication_info = parse_medication_info(medication_info)
- 
+
     trainer_modifications = get_trainer_response(dog_name)
     normalized_trainer_modifications = parse_trainer_info(trainer_modifications)
 
@@ -46,33 +68,7 @@ def get_dog_info(dog_name:str):
     )
 
     timeline.sort(key=lambda event: event.timestamp)
-    for event in timeline:
-        save_behavior_event(event)
-
-
     return timeline
-
-def store_dog_info(event: BehaviorEvent):
-    # Get info from app.py here 
-    # Parse it into an event type 
-    # Store the event 
-    try:
-        print("storing dog info: ", event)
-        save_behavior_event(event)
-    except Exception as e:
-        print(f"Error occurred while storing dog info: {e}")
-
-# Temporary endpoint to return dog info for testing purposes
-@app.get("/return_dog_info/{dog_name}", response_model=list[BehaviorEvent])
-def return_dog_info(dog_name: str):
-    try:
-        connection = get_db_connection()
-        events = get_behavior_events_for_dog(dog_name, connection)
-        print(f"Retrieved {len(events)} events for dog: {dog_name}")
-        return events
-    except Exception as e:
-        print(f"Error occurred while retrieving dog info: {e}")
-        return []
 
 def create_story():
     # Function to create a story based on the aggregated information

@@ -114,7 +114,7 @@ def get_behavior_events_for_dog(
         """
         SELECT *
         FROM behavior_events
-        WHERE dog_name = %s
+        WHERE dog_name ILIKE %s
         ORDER BY timestamp DESC
         """,
         (dog_name,),
