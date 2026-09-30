@@ -278,6 +278,7 @@ with add_event_tab:
     with st.form(
         "add_behavior_event_form",
         clear_on_submit=True,
+        enter_to_submit=False,
     ):
         # pup_names_input = st.text_input(
         #     "Pup names",
