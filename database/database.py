@@ -39,6 +39,15 @@ def create_tables():
         state TEXT PRIMARY KEY
         )
     """)
+
+    connection.execute("""
+    CREATE TABLE IF NOT EXISTS google_oauth_credentials (
+        email TEXT PRIMARY KEY,
+        access_token TEXT NOT NULL,
+        refresh_token TEXT,
+        expires_at TIMESTAMPTZ
+        )
+    """)
     connection.commit()
     connection.close()
 
@@ -55,6 +64,59 @@ def save_google_oauth_state(state: str):
 
     connection.commit()
     connection.close()
+
+def save_google_credentials(
+    email,
+    access_token,
+    refresh_token,
+    expires_at,
+):
+    connection = get_db_connection()
+
+    connection.execute(
+        """
+        INSERT INTO google_oauth_credentials (
+            email,
+            access_token,
+            refresh_token,
+            expires_at
+        )
+        VALUES (%s, %s, %s, %s)
+        ON CONFLICT (email)
+        DO UPDATE SET
+            access_token = EXCLUDED.access_token,
+            refresh_token = COALESCE(
+                EXCLUDED.refresh_token,
+                google_oauth_credentials.refresh_token
+            ),
+            expires_at = EXCLUDED.expires_at
+        """,
+        (
+            email,
+            access_token,
+            refresh_token,
+            expires_at,
+        ),
+    )
+
+    connection.commit()
+    connection.close()
+
+def load_google_credentials(email: str):
+    connection = get_db_connection()
+
+    row = connection.execute(
+        """
+        SELECT *
+        FROM google_oauth_credentials
+        WHERE email = %s
+        """,
+        (email,),
+    ).fetchone()
+
+    connection.close()
+
+    return row
 
 def validate_google_oauth_state(state: str) -> bool:
     connection = get_db_connection()

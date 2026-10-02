@@ -1,10 +1,11 @@
 from datetime import datetime
 
 import streamlit as st
+from google.auth.transport.requests import Request
 
-from auth.auth import authenticate_user, build_google_login_url, get_client
+from auth.auth import authenticate_user, build_google_login_url, get_client, get_credentials
 from backfill import backfill_all, backfill_medications
-from database.database import get_all_behavior_events, save_behavior_event
+from database.database import create_tables, get_all_behavior_events, save_behavior_event
 from forms.common import (
     build_common_event_data,
     render_common_fields,
@@ -28,6 +29,7 @@ from forms.trainer_form import (
 from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 
+create_tables()
 
 st.set_page_config(
     page_title="Muttville Dog Timeline",
@@ -54,6 +56,12 @@ if st.button("Refresh database"):
         backfill_all()
     st.success("Backfill complete!")
 
+if st.button("Test Google token refresh"):
+    credentials = get_credentials(force_refresh=True)
+
+    if credentials:
+        st.success("Token refresh worked!")
+        
 def concern_chip(concern: str) -> str:
     colors = {
         "Leash Reactivity": "#F97316",

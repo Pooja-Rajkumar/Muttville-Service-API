@@ -8,9 +8,15 @@ from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-from database.database import save_google_oauth_state, validate_google_oauth_state
+from database.database import load_google_credentials, save_google_credentials, save_google_oauth_state, validate_google_oauth_state
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+SCOPES = [
+    "openid",
+    "email",
+    "https://www.googleapis.com/auth/spreadsheets.readonly"
+    ]
 GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 REDIRECT_URI_LOCAL = "http://localhost:8501/" # https://dy9rxmwhhd56yjutls8uqs.streamlit.app/ or testing http://localhost:8501/
@@ -45,7 +51,7 @@ def check_if_google_callback():
 
 def exchange_code_for_credentials(
     authorization_code: str,
-) -> Credentials:
+) -> tuple[Credentials, str]:
     data = {
         "code": authorization_code,
         "client_id": st.secrets["google"]["client_id"],
@@ -57,7 +63,16 @@ def exchange_code_for_credentials(
     response = requests.post(GOOGLE_TOKEN_URL, data=data)
     response.raise_for_status()
     token_data = response.json()
+    user_info = id_token.verify_oauth2_token(
+        token_data["id_token"],
+        google_requests.Request(),
+        st.secrets["google"]["client_id"],
+    )
 
+    email = user_info["email"]
+    
+    if not email.endswith("@muttville.org"):
+        raise ValueError("Please sign in with your Muttville account.")
     credentials = Credentials(
         token=token_data["access_token"],
         refresh_token=token_data.get("refresh_token"),
@@ -66,8 +81,12 @@ def exchange_code_for_credentials(
         client_secret=st.secrets["google"]["client_secret"],
         scopes=SCOPES,
     )
+    credentials.expiry = (
+        datetime.now(timezone.utc)
+        + timedelta(seconds=token_data["expires_in"])
+    ).replace(tzinfo=None)
 
-    return credentials
+    return credentials, email
 
 
 def authenticate_user() -> bool:
@@ -80,26 +99,62 @@ def authenticate_user() -> bool:
         st.error("Invalid OAuth state.")
         return False
     try:
-        credentials = exchange_code_for_credentials(code)
+        credentials, email = exchange_code_for_credentials(code)
         st.session_state["google_credentials"] = credentials
+        st.session_state["user_email"] = email
+
+        save_google_credentials(
+            email=email,
+            access_token=credentials.token,
+            refresh_token=credentials.refresh_token,
+            expires_at=credentials.expiry,
+        )
+        print("FINISHED SAVING GOOGLE CREDENTIALS")
         st.query_params.clear()
         return True
     except Exception as e:
         st.error(f"Error during Google login: {e}")
         return False
 
-def get_credentials() -> Credentials | None:
+def get_credentials(force_refresh=False) -> Credentials | None:
     credentials = st.session_state.get("google_credentials")
     if credentials is None:
         return None
 
-    if credentials.expired and credentials.refresh_token:
+    if (credentials.expired or force_refresh) and credentials.refresh_token:
         try:
             credentials.refresh(Request())
             st.session_state["google_credentials"] = credentials
+            email = st.session_state["user_email"]
+
+            save_google_credentials(
+                email=email,
+                access_token=credentials.token,
+                refresh_token=credentials.refresh_token,
+                expires_at=credentials.expiry,
+            )
         except RefreshError as e:
             st.error(f"Error refreshing Google credentials: {e}")
             return None
+
+    return credentials
+
+def get_saved_credentials(email: str) -> Credentials | None:
+    row = load_google_credentials(email)
+
+    if row is None:
+        return None
+
+    credentials = Credentials(
+        token=row["access_token"],
+        refresh_token=row["refresh_token"],
+        token_uri=GOOGLE_TOKEN_URL,
+        client_id=st.secrets["google"]["client_id"],
+        client_secret=st.secrets["google"]["client_secret"],
+        scopes=SCOPES,
+    )
+
+    credentials.expiry = row["expires_at"]
 
     return credentials
 
