@@ -9,11 +9,14 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
     for row in rows:
         timestamp = parse_timestamp(row["Referral Date "])
+        if timestamp == "" :
+            print(f"Skipping row because timestamp is missing: {row}")
+            continue
         dog_name = clean_string(row.get("Dog Name"))
         events.append(
             TrainerBehaviorEvent(
                 timestamp=timestamp,
-                event_id=timestamp + "-" + dog_name,
+                event_id=(timestamp or "None") + "-" + dog_name,
                 inputted_by=clean_string(row.get("Who referred?")),
                 dog_name=dog_name,
                 source=EventSource.GS_MUTT_CHEAT_SHEET,

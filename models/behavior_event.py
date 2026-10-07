@@ -21,12 +21,14 @@ class EventSource(str, Enum):
     MANUAL = "Manual Entry"
 
 class BehaviorEvent(BaseModel):
-    timestamp: datetime
+    timestamp: datetime 
     
     @computed_field
     @property
     def timestamp_display(self) -> str:
-        return self.timestamp.strftime("%b %d, %Y • %I:%M %p")
+        if self.timestamp:
+            return self.timestamp.strftime("%b %d, %Y • %I:%M %p")
+        return "No timestamp available"
 
     inputted_by: str | None = None
     dog_name: str

@@ -8,13 +8,13 @@ def clean_string(value: Any) -> str | None:
 
     text = str(value).strip()
 
-    return text or None
+    return text or ""
 
-def parse_timestamp(value: Any) -> str | None: # type: ignore
+def parse_timestamp(value: Any) -> str: # type: ignore
     text = clean_string(value)
 
     if not text:
-        return None
+        return ""
 
     formats = (
         "%m/%d/%Y %H:%M:%S",

@@ -14,5 +14,5 @@ class MedicationBehaviorEvent(BehaviorEvent):
 
 class TrainerBehaviorEvent(BehaviorEvent):
     trainer_name: str | None = None
-    referral_date: str | None = None
+    referral_date: str 
     notes: str | None = None

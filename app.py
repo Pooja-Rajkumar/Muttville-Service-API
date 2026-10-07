@@ -56,11 +56,6 @@ if st.button("Refresh database"):
         backfill_all()
     st.success("Backfill complete!")
 
-if st.button("Test Google token refresh"):
-    credentials = get_credentials(force_refresh=True)
-
-    if credentials:
-        st.success("Token refresh worked!")
         
 def concern_chip(concern: str) -> str:
     colors = {
