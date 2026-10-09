@@ -6,6 +6,7 @@ class MedicationStatus(str, Enum):
     APPROVED = "Approved"
     FILLED = "Filled"
     FOSTER_NOTIFIED = "Foster notified"
+    READY_FOR_HQ = "Ready for HQ"
 
 
 class MedicationBehaviorEvent(BehaviorEvent):
