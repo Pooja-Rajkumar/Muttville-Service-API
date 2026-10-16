@@ -9,7 +9,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
     for row in rows:
         timestamp = parse_timestamp(row["Referral Date "])
-        if timestamp == "" :
+        if timestamp == "" or timestamp is None:
             print(f"Skipping row because timestamp is missing: {row}")
             continue
         dog_name = clean_string(row.get("Dog Name"))

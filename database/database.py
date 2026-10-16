@@ -325,7 +325,10 @@ def update_behavior_event(event: BehaviorEvent, connection):
             timestamp = %s,
             inputted_by = %s,
             dog_name = %s,
-            concerns = %s,
+            concerns = CASE
+                WHEN concerns_manually_edited = TRUE THEN concerns
+                ELSE %s
+            END,
             summary = %s,
             event_data = %s
         WHERE source = %s
@@ -339,6 +342,27 @@ def update_behavior_event(event: BehaviorEvent, connection):
             concerns_json,
             event.summary,
             event_data_json,
+            event.source.value,
+            event.event_id,
+        ),
+    )
+
+def update_event_concerns(event: BehaviorEvent, updated_concerns, connection):
+    concerns_json = json.dumps(
+        [concern.value for concern in updated_concerns]
+    )
+
+    connection.execute(
+        """
+        UPDATE behavior_events
+        SET
+            concerns = %s,
+            concerns_manually_edited = TRUE
+        WHERE source = %s
+        AND event_id = %s
+        """,
+        (
+            concerns_json,
             event.source.value,
             event.event_id,
         ),

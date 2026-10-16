@@ -10,11 +10,11 @@ def clean_string(value: Any) -> str | None:
 
     return text or ""
 
-def parse_timestamp(value: Any) -> str: # type: ignore
+def parse_timestamp(value: Any) -> datetime | None: # type: ignore
     text = clean_string(value)
 
     if not text:
-        return ""
+        return None
 
     formats = (
         "%m/%d/%Y %H:%M:%S",

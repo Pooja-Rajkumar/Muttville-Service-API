@@ -1,31 +1,10 @@
 from datetime import datetime
 
 import streamlit as st
-from google.auth.transport.requests import Request
 
-from auth.auth import authenticate_user, build_google_login_url, get_client, get_credentials
-from backfill import backfill_all, backfill_medications
-from database.database import create_tables, get_all_behavior_events, save_behavior_event
-from forms.common import (
-    build_common_event_data,
-    render_common_fields,
-)
-from forms.foster_form import (
-    create_foster_event,
-    render_foster_fields,
-)
-from forms.intake_form import (
-    create_intake_event,
-    render_intake_fields,
-)
-from forms.medication_form import (
-    create_medication_event,
-    render_medication_fields,
-)
-from forms.trainer_form import (
-    create_trainer_event,
-    render_trainer_fields,
-)
+from auth.auth import authenticate_user, build_google_login_url, get_client
+from backfill import backfill_all
+from database.database import create_tables, get_all_behavior_events, get_db_connection, update_event_concerns
 from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 
@@ -84,18 +63,17 @@ def concern_chip(concern: str) -> str:
             {concern}
         </span>
     """
-
+# modal 
 @st.dialog("Behavior Event", width="large")
 def show_event_details(event):
     st.subheader(event.dog_name)
 
-    concern_names = []
-
-    for concern in event.concerns:
-        concern_names.append(concern.value)
-
-    st.write(
-        f"**Behavior Concern:** {', '.join(concern_names)}"
+    # Allow staff to edit behavior concerns
+    updated_concerns = st.multiselect(
+        "Behavior concerns",
+        options=list(BehaviorConcern),
+        default=event.concerns,
+        format_func=lambda concern: concern.value,
     )
 
     st.write(
@@ -113,6 +91,11 @@ def show_event_details(event):
         f"**Source:** {event.source.value}"
     )
 
+    if st.button("Save changes"):
+        with get_db_connection() as connection:
+            update_event_concerns(event, updated_concerns, connection)
+        st.success("Behavior concerns updated!")
+        st.rerun()
 
 timeline_tab, add_event_tab, database_tab = st.tabs(
     [
