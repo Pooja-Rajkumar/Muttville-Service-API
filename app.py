@@ -7,6 +7,7 @@ from backfill import backfill_all
 from database.database import create_tables, get_all_behavior_events, get_db_connection, update_event_concerns
 from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
+from models.foster_behavior_event import FosterBehaviorEvent
 
 create_tables()
 
@@ -247,6 +248,23 @@ with timeline_tab:
                             st.write(
                                 f"**Status:** "
                                 f"{', '.join(status_names)}"
+                            )
+                    # Foster-specific information
+                    if isinstance(event, FosterBehaviorEvent):
+
+                        if event.anything_to_add:
+                            st.write(
+                                f"**Anything to add:** {event.anything_to_add}"
+                            )
+
+                        if event.potential_adopter_info:
+                            st.write(
+                                f"**Potential adopter information:** {event.potential_adopter_info}"
+                            )
+
+                        if event.muttville_care_additional_notes:
+                            st.write(
+                                f"**Muttville care additional notes:** {event.muttville_care_additional_notes}"
                             )
 
                     if event.summary:

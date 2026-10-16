@@ -216,6 +216,13 @@ def parse_foster_questionnaire(
                 baths=baths,
                 leash_behavior=leash_behavior,
                 solo_mutt_behavior=solo_mutt_behavior,
+                anything_to_add=clean_string(row.get("Anything to add")),
+                potential_adopter_info=clean_string(row.get(
+                    "Is there anything that would be helpful for a potential adopter to know when your mutt transitions into a new home?"
+                )),
+                muttville_care_additional_notes=clean_string(row.get(
+                    "Is there anything else we that would be helpful for the Muttville team to know about your mutt? "
+                )),
                 location="Foster"
             )
         )

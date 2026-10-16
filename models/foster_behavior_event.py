@@ -93,3 +93,6 @@ class FosterBehaviorEvent(BehaviorEvent):
 
     leash_behavior: list[LeashBehaviorType] | None = None
     solo_mutt_behavior: SoloMuttBehaviorType | None = None
+    anything_to_add: str | None = None
+    potential_adopter_info: str | None = None
+    muttville_care_additional_notes: str | None = None
