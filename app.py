@@ -400,16 +400,44 @@ with database_tab:
                 else concern.value
             ),
         )
+        # Filter by pup name
+        pup_name = st.text_input(
+            "Filter by pup name",
+            placeholder="Enter pup name",
+        )
+
+        # Filter by timestamp
+        date_range = st.date_input(
+            "Filter by date range",
+            value=(),
+        )
 
         # Filter events
-        if selected_concern is None:
-            filtered_events = events
-        else:
-            filtered_events = []
+        filtered_events = []
 
-            for event in events:
-                if selected_concern in event.concerns:
-                    filtered_events.append(event)
+        for event in events:
+
+            # Filter by behavior concern
+            if selected_concern is not None:
+                if selected_concern not in event.concerns:
+                    continue
+
+            # Filter by pup name
+            if pup_name:
+                if pup_name.lower() not in event.dog_name.lower():
+                    continue
+
+            # Filter by date range
+            if len(date_range) == 2:
+                start_date, end_date = date_range
+
+                if event.timestamp.date() < start_date:
+                    continue
+
+                if event.timestamp.date() > end_date:
+                    continue
+
+            filtered_events.append(event)
 
         if not filtered_events:
             st.info("No matching behavior events.")
