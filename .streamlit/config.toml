@@ -1,0 +1,12 @@
+[theme]
+base = "light"
+primaryColor = "#567D65"
+backgroundColor = "#FBF8F1"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#283B32"
+borderColor = "#DDE5D9"
+dataframeBorderColor = "#DCE5D9"
+dataframeHeaderBackgroundColor = "#EAF1E7"
+dataframeHeaderTextColor = "#294C3A"
+baseRadius = "large"
+buttonRadius = "large"
