@@ -14,7 +14,6 @@ from models.foster_behavior_event import (
     SoloMuttBehaviorType,
     StairBehaviorType,
 )
-from parsers.behavior_modification_parser import classify_behavior_concern
 
 
 def parse_foster_questionnaire(

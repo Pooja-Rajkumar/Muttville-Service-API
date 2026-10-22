@@ -18,7 +18,11 @@ def convert_row_to_event(row):
     event_model = EVENT_MODELS[row["event_type"]] # return the class that we want 
 
     event_data = json.loads(row["event_data"]) # dump event data into dictionary
-    concerns = json.loads(row["concerns"]) # dump concerns into dictionary
+    if row["concerns"]:
+        concerns = json.loads(row["concerns"])
+    else:
+        concerns = []
+
 
     return event_model( # instantiate the class and dump all the extraneous data into the class 
         timestamp=row["timestamp"],

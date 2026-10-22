@@ -24,7 +24,6 @@ def parse_slack_behavior_updates(rows: list[dict]) -> list[BehaviorEvent]:
                 event_id= clean_string(timestamp) + "-" + dog_name,
                 dog_name=dog_name,
                 source=EventSource.SLACK_BEHAVIOR_UPDATES,
-                concerns=[classify_behavior_concern(notes)],
                 summary=notes,
                 inputted_by=clean_string(row.get("Submitted By")),
                 location=location,

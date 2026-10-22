@@ -415,7 +415,7 @@ def show_event_details(event):
     updated_concerns = st.multiselect(
         "Behavior concerns",
         options=list(BehaviorConcern),
-        default=event.concerns,
+        default=event.concerns or [],
         format_func=lambda concern: concern.value,
     )
 
@@ -531,7 +531,7 @@ with timeline_tab:
                 concern_names = set()
 
                 for event in timeline:
-                    for concern in event.concerns:
+                    for concern in (event.concerns or []):
                         concern_names.add(concern.value)
 
                 concern_names = sorted(concern_names)
@@ -550,7 +550,7 @@ with timeline_tab:
                     if not selected_concerns:
                         filtered_timeline.append(event)
                     else:
-                        for concern in event.concerns:
+                        for concern in (event.concerns or []):
                             if concern.value in selected_concerns:
                                 filtered_timeline.append(event)
                                 break
@@ -579,9 +579,68 @@ with timeline_tab:
 
                         if event.concerns:
                             chips = ""
-                            for concern in event.concerns:
+                            for concern in (event.concerns or []):
                                 chips += concern_chip(concern.value)
                             st.markdown(chips, unsafe_allow_html=True)
+
+                        # Add tags directly on the timeline card, without opening a modal.
+                        # Source + event ID uniquely identify an event in the database.
+                        editor_key = f"{event.source.value}_{event.event_id}"
+                        if st.button(
+                            "＋ Add behavior concern",
+                            key=f"open_concern_{editor_key}",
+                        ):
+                            if st.session_state.get("open_timeline_concern_editor") == editor_key:
+                                st.session_state["open_timeline_concern_editor"] = None
+                            else:
+                                st.session_state["open_timeline_concern_editor"] = editor_key
+
+                        if st.session_state.get("open_timeline_concern_editor") == editor_key:
+                            available_concerns = [
+                                concern
+                                for concern in BehaviorConcern
+                                if concern not in (event.concerns or [])
+                            ]
+                            if not available_concerns:
+                                st.caption("All behavior concerns are already added.")
+                            else:
+                                with st.form(f"add_concern_form_{editor_key}", border=False):
+                                    new_concern = st.selectbox(
+                                        "Select a behavior concern",
+                                        options=available_concerns,
+                                        format_func=lambda concern: concern.value,
+                                    )
+                                    add_column, cancel_column = st.columns([1, 1])
+                                    with add_column:
+                                        add_clicked = st.form_submit_button(
+                                            "Add concern",
+                                            type="primary",
+                                            use_container_width=True,
+                                        )
+                                    with cancel_column:
+                                        cancel_clicked = st.form_submit_button(
+                                            "Cancel",
+                                            use_container_width=True,
+                                        )
+
+                                if cancel_clicked:
+                                    st.session_state["open_timeline_concern_editor"] = None
+                                    st.rerun()
+
+                                if add_clicked:
+                                    updated_concerns = [*(event.concerns or []), new_concern]
+                                    try:
+                                        with get_db_connection() as connection:
+                                            update_event_concerns(event, updated_concerns, connection)
+                                        # Timeline results are cached in session state.
+                                        # Update the same event object for immediate display.
+                                        event.concerns = updated_concerns
+                                        st.session_state["open_timeline_concern_editor"] = None
+                                        st.toast("Behavior concern added!", icon="✅")
+                                        st.rerun()
+                                    except Exception as exc:
+                                        st.error("Could not add the behavior concern.")
+                                        st.exception(exc)
 
                         if event.summary:
                             st.write(event.summary)
@@ -634,11 +693,9 @@ with add_event_tab:
             enter_to_submit=False,
         ):
             st.markdown("#### 🐶 Who & when")
-            pup_names = st.multiselect(
+            pup_names_text = st.text_input(
                 "Pup names",
-                options=[],
-                placeholder="Type a pup name and press Enter",
-                accept_new_options=True,
+                placeholder="Enter a pup name (separate multiple names with commas)",
             )
             inputted_by = st.text_input(
                 "Inputted by",
@@ -652,7 +709,7 @@ with add_event_tab:
 
             st.markdown("#### 📝 What happened")
             concerns = st.multiselect(
-                "Behavior concerns",
+                "Behavior concerns (optional)",
                 options=list(BehaviorConcern),
                 format_func=lambda concern: concern.value,
             )
@@ -678,6 +735,13 @@ with add_event_tab:
             )
 
         if submit_clicked:
+            # A text input retains the typed name when Tab moves focus.
+            # Commas still let staff save the same observation for multiple dogs.
+            pup_names = [
+                name.strip()
+                for name in pup_names_text.split(",")
+                if name.strip()
+            ]
             inputted_by = inputted_by.strip()
             summary = summary.strip()
 
@@ -686,9 +750,6 @@ with add_event_tab:
 
             elif not inputted_by:
                 st.error("Inputted by is required.")
-
-            elif not concerns:
-                st.error("Select at least one behavior concern.")
 
             elif not summary:
                 st.error("Summary of occurrence is required.")
@@ -799,7 +860,7 @@ with database_tab:
 
             # Filter by behavior concern
             if selected_concern is not None:
-                if selected_concern not in event.concerns:
+                if selected_concern not in (event.concerns or []):
                     continue
 
             # Filter by pup name
@@ -830,7 +891,7 @@ with database_tab:
             for event in filtered_events:
                 concern_names = []
 
-                for concern in event.concerns:
+                for concern in (event.concerns or []):
                     concern_names.append(concern.value)
 
                 all_table_rows.append(

@@ -12,6 +12,7 @@ class BehaviorConcern(str, Enum):
     INTROS_TO_RESIDENT_PET = "Intros to Resident Pet"
     OTHER = "Other"
 
+
 class EventSource(str, Enum):
     GS_MEDICATIONS = "Medications"
     GS_MUTT_CHEAT_SHEET = "Mutt Cheat Sheet"
@@ -33,7 +34,7 @@ class BehaviorEvent(BaseModel):
     inputted_by: str | None = None
     dog_name: str
     source: EventSource
-    concerns: list[BehaviorConcern]
+    concerns: list[BehaviorConcern] = Field(default_factory=list)
     summary: str
     event_id: str # This varies by channel
     location: str | None = None

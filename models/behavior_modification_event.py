@@ -7,6 +7,13 @@ class MedicationStatus(str, Enum):
     FILLED = "Filled"
     FOSTER_NOTIFIED = "Foster notified"
     READY_FOR_HQ = "Ready for HQ"
+    UNKNOWN = "unknown"  # Your catch-all variant
+
+    @classmethod
+    def _missing_(cls, value):
+        """Intercepts unknown initialization values and returns the fallback."""
+        return cls.UNKNOWN
+
 
 
 class MedicationBehaviorEvent(BehaviorEvent):

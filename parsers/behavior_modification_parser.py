@@ -69,10 +69,7 @@ def parse_medication_info(
             inputted_by=inputted_by,
             dog_name=dog_name,
             source=EventSource.GS_MEDICATIONS,
-            concerns=[classify_behavior_concern(
-                summary=summary,
-                notes=additional_notes,
-            )],
+
             summary=summary,
             location=clean_string(
                 row.get("Where was behavior observed?")
