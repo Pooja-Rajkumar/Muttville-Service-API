@@ -59,8 +59,8 @@ def backfill_slack():
     #     save_behavior_event(event)
 
 def backfill_all():
-    # backfill_medications()
-    # backfill_trainer_responses()
-    # backfill_foster_questionnaire()
-    # backfill_intake()
+    backfill_medications()
+    backfill_trainer_responses()
+    backfill_foster_questionnaire()
+    backfill_intake()
     backfill_slack()
