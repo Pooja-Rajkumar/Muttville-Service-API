@@ -51,13 +51,16 @@ def backfill_slack():
     sheet = get_google_sheet(GOOGLE_SHEET_KEY_SLACK)
     sheet_data = sheet.worksheet("Form Responses").get_all_records()
     events = parse_slack_behavior_updates(sheet_data)
+    for event in events:
+        if "bug" in event.dog_name.lower():
+            print("EVENT:", event.dog_name, event.event_id)
     save_behavior_events(events)
     # for event in events:
     #     save_behavior_event(event)
 
 def backfill_all():
-    backfill_medications()
-    backfill_trainer_responses()
-    backfill_foster_questionnaire()
-    backfill_intake()
+    # backfill_medications()
+    # backfill_trainer_responses()
+    # backfill_foster_questionnaire()
+    # backfill_intake()
     backfill_slack()

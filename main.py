@@ -6,7 +6,6 @@ from fastapi import Response
 from channels.foster_questionnaire_responses import get_foster_notes_questionaire_info_reviewer_expanded
 from channels.intake import get_intake_info
 from channels.slack import get_slack_info
-from create_timeline import create_timeline
 from database.database import create_tables, get_all_behavior_events, get_behavior_events_for_dog, get_db_connection, save_behavior_event
 from models.behavior_event import BehaviorEvent
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
@@ -37,7 +36,6 @@ def store_dog_info(event: BehaviorEvent):
     # Parse it into an event type 
     # Store the event 
     try:
-        print("storing dog info: ", event)
         save_behavior_event(event)
     except Exception as e:
         print(f"Error occurred while storing dog info: {e}")
