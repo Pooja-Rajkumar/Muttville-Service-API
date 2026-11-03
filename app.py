@@ -5,7 +5,13 @@ import streamlit as st
 
 from auth.auth import authenticate_user, build_google_login_url, get_client
 from backfill import backfill_all
-from database.database import create_tables, get_all_behavior_events, get_db_connection, update_event_concerns
+from database.database import (
+    create_tables,
+    delete_behavior_event,
+    get_all_behavior_events,
+    get_db_connection,
+    update_event_concerns,
+)
 from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 from models.foster_behavior_event import FosterBehaviorEvent
@@ -439,6 +445,41 @@ def show_event_details(event):
             update_event_concerns(event, updated_concerns, connection)
         st.success("Behavior concerns updated!")
         st.rerun()
+
+    st.divider()
+    st.markdown("**Delete this record**")
+    st.caption(
+        "This permanently deletes this event from the database. "
+        "It does not delete other events for this dog."
+    )
+    confirm_delete = st.checkbox(
+        "I understand this event will be permanently deleted",
+        key=f"confirm_delete_{event.source.value}_{event.event_id}",
+    )
+    if st.button(
+        "Delete event",
+        type="secondary",
+        disabled=not confirm_delete,
+        key=f"delete_event_{event.source.value}_{event.event_id}",
+    ):
+        try:
+            deleted = delete_behavior_event(event)
+
+            if not deleted:
+                st.error("This event was already deleted or could not be found.")
+            else:
+                # Clear the selected row, and any previously loaded dog timeline.
+                st.session_state["opened_event_id"] = None
+                st.session_state["database_table_version"] = (
+                    st.session_state.get("database_table_version", 0) + 1
+                )
+                st.session_state.pop("timeline", None)
+                st.session_state.pop("timeline_dog", None)
+                st.toast("Event deleted from the database.", icon="✅")
+                st.rerun()
+        except Exception as exc:
+            st.error("Could not delete the event.")
+            st.exception(exc)
 
 timeline_tab, add_event_tab, database_tab = st.tabs(
     [
@@ -910,6 +951,7 @@ with database_tab:
             st.markdown("**Event records** · Select a row for the full note and editable tags.")
             selection = st.dataframe(
                 all_table_rows,
+                key=f"database_events_{st.session_state.get('database_table_version', 0)}",
                 width="stretch",
                 hide_index=True,
                 height=740,

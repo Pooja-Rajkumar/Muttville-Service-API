@@ -118,6 +118,19 @@ def load_google_credentials(email: str):
 
     return row
 
+def delete_behavior_event(event: BehaviorEvent):
+    with get_db_connection() as connection:
+        result = connection.execute(
+            """
+            DELETE FROM behavior_events
+            WHERE source = %s AND event_id = %s
+            RETURNING id
+            """,
+            (event.source.value, event.event_id),
+        ).fetchone()
+
+    return result is not None
+
 def validate_google_oauth_state(state: str) -> bool:
     connection = get_db_connection()
 
