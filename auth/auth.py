@@ -8,6 +8,7 @@ from google.auth.exceptions import RefreshError
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
+from config.settings import IS_LOCAL
 from database.database import load_google_credentials, save_google_credentials, save_google_oauth_state, validate_google_oauth_state
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -21,12 +22,15 @@ GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 REDIRECT_URI_LOCAL = "http://localhost:8501/" # https://dy9rxmwhhd56yjutls8uqs.streamlit.app/ or testing http://localhost:8501/
 REDIRECT_URI_PROD = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/"
+REDIRECT_URI = REDIRECT_URI_LOCAL if IS_LOCAL else REDIRECT_URI_PROD
+
 def build_google_login_url() -> str:
     state = secrets.token_urlsafe(16)
     save_google_oauth_state(state)
+    print("Using redirect URI:", REDIRECT_URI)
     params = {
         "client_id": st.secrets["google"]["client_id"],
-        "redirect_uri": REDIRECT_URI_PROD,
+        "redirect_uri": REDIRECT_URI,
         "response_type": "code",
         "scope": " ".join(SCOPES),
         "state": state,
@@ -56,7 +60,7 @@ def exchange_code_for_credentials(
         "code": authorization_code,
         "client_id": st.secrets["google"]["client_id"],
         "client_secret": st.secrets["google"]["client_secret"],
-        "redirect_uri": REDIRECT_URI_PROD,
+        "redirect_uri": REDIRECT_URI,
         "grant_type": "authorization_code",
     }
 

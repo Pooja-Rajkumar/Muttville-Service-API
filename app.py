@@ -5,6 +5,7 @@ import streamlit as st
 
 from auth.auth import authenticate_user, build_google_login_url, get_client
 from backfill import backfill_all
+from config.settings import IS_LOCAL
 from database.database import (
     create_tables,
     delete_behavior_event,
@@ -16,6 +17,8 @@ from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 from models.foster_behavior_event import FosterBehaviorEvent
 
+if IS_LOCAL:
+    st.caption("Development mode")
 st.set_page_config(
     page_title="Muttville Dog Timeline",
     page_icon="🐶",
