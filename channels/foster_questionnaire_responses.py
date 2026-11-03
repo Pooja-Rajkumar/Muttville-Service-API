@@ -1,16 +1,10 @@
 from helpers.constants import GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE
-from auth.google_sheet_connector import get_google_sheet
+from auth.google_sheet_connector import find_matching_records, get_google_sheet, retrieve_google_records_by_id
 
 
 def get_foster_notes_questionaire_info_reviewer_expanded(dog_name: str):
     # aggregate foster notes questionaire info from google sheet once workflow is up 
-    sheet = get_google_sheet(GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE)
     target_sheet_id = 637846814 # Reviewer View (Expanded) tab
-    worksheet = sheet.get_worksheet_by_id(target_sheet_id)
-    sheet_data = worksheet.get_all_records()
-
-    pup_info = []
-    for row in sheet_data:
-        if row["Mutt's Name"].lower() == dog_name.lower():
-            pup_info.append(row)
+    records = retrieve_google_records_by_id(GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE, target_sheet_id)
+    pup_info = find_matching_records(records, "Mutt's Name", dog_name)
     return pup_info
