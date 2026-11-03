@@ -1,6 +1,3 @@
 import os
 
-if os.environ.get("APP_ENV").lower() == "local":
-    IS_LOCAL = True
-else:
-    IS_LOCAL = False
+IS_LOCAL = os.getenv("APP_ENV", "prod").lower() == "local"
