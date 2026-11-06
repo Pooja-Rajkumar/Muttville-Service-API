@@ -13,15 +13,14 @@ from database.database import load_google_credentials, save_google_credentials, 
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
+from helpers.constants import CLIENT_EMAIL_SIGN, GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL, REDIRECT_URI_LOCAL, REDIRECT_URI_PROD
+
 SCOPES = [
     "openid",
     "email",
     "https://www.googleapis.com/auth/spreadsheets.readonly"
     ]
-GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
-GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
-REDIRECT_URI_LOCAL = "http://localhost:8501/" # https://dy9rxmwhhd56yjutls8uqs.streamlit.app/ or testing http://localhost:8501/
-REDIRECT_URI_PROD = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/"
+
 REDIRECT_URI = REDIRECT_URI_LOCAL if IS_LOCAL else REDIRECT_URI_PROD
 
 def build_google_login_url() -> str:
@@ -75,7 +74,7 @@ def exchange_code_for_credentials(
 
     email = user_info["email"]
     
-    if not email.endswith("@muttville.org"):
+    if not email.endswith(CLIENT_EMAIL_SIGN):
         raise ValueError("Please sign in with your Muttville account.")
     credentials = Credentials(
         token=token_data["access_token"],
@@ -113,7 +112,6 @@ def authenticate_user() -> bool:
             refresh_token=credentials.refresh_token,
             expires_at=credentials.expiry,
         )
-        print("FINISHED SAVING GOOGLE CREDENTIALS")
         st.query_params.clear()
         return True
     except Exception as e:

@@ -16,5 +16,16 @@ SLACK_WORKSHEET_NAME = "Form Responses"
 SLACK_COLUMN_NAME = "Pup Name"
 MEDS_COLUMN_NAME = "Dog's name"
 TRAINER_COLUMN_NAME = "Dog Name"
+INTAKE_COLUMN_NAME = "Dog Name"
 FOSTER_QUESTIONNAIRE_COLUMN_NAME = "Mutt's Name"
 
+# Constants
+ADOPTED = "adopted"
+
+# URLs 
+GOOGLE_AUTH_URL ="https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+REDIRECT_URI_LOCAL = "http://localhost:8501/" # https://dy9rxmwhhd56yjutls8uqs.streamlit.app/ or testing http://localhost:8501/
+REDIRECT_URI_PROD = "https://dy9rxmwhhd56yjutls8uqs.streamlit.app/"
+CLIENT_EMAIL_SIGN = "@muttville.org"
+DOG_NAME = "Dog Name"

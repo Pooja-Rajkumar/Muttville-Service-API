@@ -1,9 +1,8 @@
+from helpers.constants import DOG_NAME
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
-from datetime import datetime
 from typing import Any
-from helpers.behavior_concern_classifier import classify_behavior_concern
 from helpers.helper import clean_string, parse_timestamp
-from models.behavior_modification_event import MedicationBehaviorEvent, MedicationStatus, TrainerBehaviorEvent
+from models.behavior_modification_event import MedicationBehaviorEvent, TrainerBehaviorEvent
 
 def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
     events = []
@@ -12,7 +11,7 @@ def parse_trainer_info(rows: list[dict]) -> list[BehaviorEvent]:
         if timestamp == "" or timestamp is None:
             print(f"Skipping row because timestamp is missing: {row}")
             continue
-        dog_name = clean_string(row.get("Dog Name"))
+        dog_name = clean_string(row.get(DOG_NAME))
         events.append(
             TrainerBehaviorEvent(
                 timestamp=timestamp,

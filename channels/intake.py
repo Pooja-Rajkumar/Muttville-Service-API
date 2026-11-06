@@ -1,4 +1,4 @@
-from helpers.constants import GOOGLE_SHEET_KEY_BEHAVIORAL_OUTREACH_FOSTER, INTAKE_WORKSHEET_NAME
+from helpers.constants import ADOPTED, GOOGLE_SHEET_KEY_BEHAVIORAL_OUTREACH_FOSTER, INTAKE_COLUMN_NAME, INTAKE_WORKSHEET_NAME
 from auth.google_sheet_connector import get_google_sheet, retrieve_google_records_by_name
 
 def get_intake_info(dog_name: str):
@@ -7,6 +7,6 @@ def get_intake_info(dog_name: str):
     pup_info = []
     for row in records:
         sl_status = str(row.get("SL Status", "")).strip().lower()
-        if row["Dog Name"].lower() == dog_name.lower() and sl_status != "adopted":
+        if row[INTAKE_COLUMN_NAME].lower() == dog_name.lower() and sl_status != ADOPTED:
             pup_info.append(row)
     return pup_info

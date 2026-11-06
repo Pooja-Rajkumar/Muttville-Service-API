@@ -1,4 +1,3 @@
-
 from models.behavior_event import BehaviorEvent
 
 class IntakeEvent(BehaviorEvent):
