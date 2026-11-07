@@ -1,8 +1,8 @@
-from auth.google_sheet_connector import retrieve_google_sheet_records_by_id
+from auth.google_sheet_connector import retrieve_google_sheet_records_by_id, retrieve_google_sheet_records_by_name
 from channels.google_sheet_channel import get_google_sheet_records
-from channels.intake import get_intake_info
+from channels.intake import get_google_sheet_intake_records
 from database.database import save_behavior_events
-from helpers.constants import GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE
+from helpers.constants import ADOPTED, GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE
 from models.behavior_event import EventSource
 from models.channel_model import GoogleSheetSource, Shelter
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info
@@ -26,17 +26,19 @@ from config import muttville_config
 #     events = parse_foster_questionnaire(sheet_data)
 #     save_behavior_events(events)
 
-# INTAKE IS WRONG THIS WHOLE TIME????
-def backfill_intake(): 
-    pass
+def backfill_intake(source: GoogleSheetSource): 
+    records = get_google_sheet_intake_records(source)
+    events = parse_intake_info(records)
+    save_behavior_events(events)
 
 # def backfill_slack(shelter_config: Shelter):
 #     sheet_data = retrieve_google_sheet_records_by_name(GOOGLE_SHEET_KEY_SLACK, "Form Responses")
 #     events = parse_slack_behavior_updates(sheet_data)
 #     save_behavior_events(events)
 
+
+
 def choose_parser(source_name: str):
-    print("source_name ==", source_name)
     if source_name == EventSource.GS_FOSTER_QUESTIONNAIRE:
         return parse_foster_questionnaire
     elif source_name == EventSource.GS_MEDICATIONS:
@@ -51,18 +53,15 @@ def choose_parser(source_name: str):
 def backfill_channel(source: GoogleSheetSource):
     records = get_google_sheet_records(source) 
     parser = choose_parser(source.name)
-    print("parser ==", parser)
     events = parser(records)
     save_behavior_events(events)
 
 def backfill(shelter_config: Shelter):
-    print("shelter confiig ==", shelter_config)
     if shelter_config.name == "Muttville Senior Dog Rescue":
         for channel in shelter_config.channels: 
             for source in channel.sources:
-                #backfill_channel(source)
                 if source.name == EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER:
-                    backfill_intake() # specialized backfill for muttville
+                    backfill_intake(source) # specialized backfill for muttville
                 else:
                     backfill_channel(source)
     else:

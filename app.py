@@ -412,6 +412,8 @@ def event_label(event):
         return "🏡 Foster observation"
     if event.source == EventSource.MANUAL:
         return "📝 Staff observation"
+    if event.source == EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER:
+        return "📋 Intake entry"
     return "🐾 Care & behavior update"
 
 

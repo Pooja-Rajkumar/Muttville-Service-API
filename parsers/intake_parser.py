@@ -14,6 +14,8 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
         intake_notes = row.get("Intake Behavior Notes", "").strip()
         foster_response = row.get("Foster Response", "").strip()
         date_intake = row.get("Date - Intake", "").strip()
+        if not date_intake:
+            continue
         events.append(
             IntakeEvent(
                 timestamp=datetime.strptime(
