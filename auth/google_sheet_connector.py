@@ -8,17 +8,17 @@ def get_google_sheet(key: str):
     sheet = client.open_by_key(key)
     return sheet
 
-def retrieve_google_records_by_name(sheet_key: str, worksheet_name: str):
+def retrieve_google_sheet_records_by_name(sheet_key: str, worksheet_name: str):
     sheet = get_google_sheet(sheet_key)
     worksheet = sheet.worksheet(worksheet_name)
     return worksheet.get_all_records() 
 
-def retrieve_google_records_by_id(sheet_key: str, worksheet_id: int):
+def retrieve_google_sheet_records_by_id(sheet_key: str, worksheet_id: int):
     sheet = get_google_sheet(sheet_key)
     worksheet = sheet.get_worksheet_by_id(worksheet_id)
     return worksheet.get_all_records()
 
-def find_matching_records(sheet_data: List[Dict[str, int | float | str]], column_name:str, dog_name: str):
+def find_google_sheet_matching_records(sheet_data: List[Dict[str, int | float | str]], column_name:str, dog_name: str):
     pup_info = []
     for row in sheet_data: 
         if row[column_name].lower() == dog_name.lower():

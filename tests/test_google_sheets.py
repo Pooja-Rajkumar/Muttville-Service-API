@@ -6,9 +6,9 @@ from auth import google_sheet_connector
 import main
 import helpers.constants as constants
 from auth.google_sheet_connector import (
-    retrieve_google_records_by_name,
-    retrieve_google_records_by_id,
-    find_matching_records,
+    retrieve_google_sheet_records_by_name,
+    retrieve_google_sheet_records_by_id,
+    find_google_sheet_matching_records,
 )
 
 
@@ -78,12 +78,12 @@ def test_medications_matches_original(
 ):
     original_result = main.get_medications_info(dog_name)
 
-    records = retrieve_google_records_by_name(
+    records = retrieve_google_sheet_records_by_name(
         constants.GOOGLE_SHEET_KEY_MEDICATIONS,
         "Form Responses 1",
     )
 
-    new_result = find_matching_records(
+    new_result = find_google_sheet_matching_records(
         records,
         "Dog's name",
         dog_name,
@@ -118,12 +118,12 @@ def test_trainer_matches_original(
 ):
     original_result = main.get_trainer_response(dog_name)
 
-    records = retrieve_google_records_by_id(
+    records = retrieve_google_sheet_records_by_id(
         constants.GOOGLE_SHEET_KEY_MUTT_CHEAT_SHEET,
         1665262541,
     )
 
-    new_result = find_matching_records(
+    new_result = find_google_sheet_matching_records(
         records,
         "Dog Name",
         dog_name,
