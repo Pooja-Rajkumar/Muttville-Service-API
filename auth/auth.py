@@ -12,8 +12,9 @@ from config.settings import IS_LOCAL
 from database.database import load_google_credentials, save_google_credentials, save_google_oauth_state, validate_google_oauth_state
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
+from config import muttville_config
 
-from helpers.constants import CLIENT_EMAIL_SIGN, GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL, REDIRECT_URI_LOCAL, REDIRECT_URI_PROD
+from helpers.constants import GOOGLE_AUTH_URL, GOOGLE_TOKEN_URL, REDIRECT_URI_LOCAL, REDIRECT_URI_PROD
 
 SCOPES = [
     "openid",
@@ -73,8 +74,8 @@ def exchange_code_for_credentials(
     )
 
     email = user_info["email"]
-    
-    if not email.endswith(CLIENT_EMAIL_SIGN):
+    email_alias = muttville_config.email_alias
+    if not email.endswith(email_alias):
         raise ValueError("Please sign in with your Muttville account.")
     credentials = Credentials(
         token=token_data["access_token"],

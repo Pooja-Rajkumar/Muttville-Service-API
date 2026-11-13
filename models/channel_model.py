@@ -36,5 +36,6 @@ class SlackSource(Source):
 class Shelter(BaseModel):
     name: str
     channels: list[Channel] = Field(default_factory=list)
+    email_alias: str | None = None
 
 

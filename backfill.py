@@ -1,8 +1,6 @@
-from auth.google_sheet_connector import retrieve_google_sheet_records_by_id, retrieve_google_sheet_records_by_name
 from channels.google_sheet_channel import get_google_sheet_records
 from channels.intake import get_google_sheet_intake_records
 from database.database import save_behavior_events
-from helpers.constants import ADOPTED, GOOGLE_SHEET_KEY_FOSTER_QUESTIONAIRE
 from models.behavior_event import EventSource
 from models.channel_model import GoogleSheetSource, Shelter
 from parsers.behavior_modification_parser import parse_medication_info, parse_trainer_info

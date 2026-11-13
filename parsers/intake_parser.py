@@ -28,7 +28,7 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
                 source=EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER,
                 summary=intake_notes or "Intake behavior information recorded",
                 foster_response=foster_response or None,
-                location="Foster",
+                location="HQ",
             )
         )
 

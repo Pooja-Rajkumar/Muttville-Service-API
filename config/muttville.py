@@ -29,6 +29,7 @@ from models.behavior_event import EventSource
 
 muttville_config = Shelter(
     name="Muttville Senior Dog Rescue",
+    email_alias="@muttville.org",
     channels=[
         Channel(
             name=ChannelType.GOOGLE_SHEET,

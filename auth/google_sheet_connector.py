@@ -8,7 +8,6 @@ def get_google_sheet(key: str):
     sheet = client.open_by_key(key)
     return sheet
 
-
 def retrieve_google_sheet_records_by_name(sheet_key: str, worksheet_name: str):
     print("Retrieve google sheet records by name")
     sheet = get_google_sheet(sheet_key)
