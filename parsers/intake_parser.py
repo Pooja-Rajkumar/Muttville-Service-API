@@ -13,23 +13,24 @@ def parse_intake_info(rows: list[dict]) -> list[BehaviorEvent]:
     for row in rows:
         intake_notes = row.get("Intake Behavior Notes", "").strip()
         foster_response = row.get("Foster Response", "").strip()
-        date_intake = row.get("Date - Intake", "").strip()
-        if not date_intake:
+        dates = row.get("Date - Intake", "").strip().split()
+        if not dates:
             continue
-        events.append(
-            IntakeEvent(
-                timestamp=datetime.strptime(
-                    row["Date - Intake"],
-                    "%m/%d/%y",
-                ),
-                inputted_by=clean_string(row.get("Foster Name")),
-                event_id=clean_string(row.get(DOG_NAME)) + "-" + date_intake,
-                dog_name=clean_string(row.get(DOG_NAME)),
-                source=EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER,
-                summary=intake_notes or "Intake behavior information recorded",
-                foster_response=foster_response or None,
-                location="HQ",
+        for date_intake in dates:
+            events.append(
+                IntakeEvent(
+                    timestamp=datetime.strptime(
+                        date_intake,
+                        "%m/%d/%y",
+                    ),
+                    inputted_by="Intake Team",
+                    event_id=clean_string(row.get(DOG_NAME)) + "-" + date_intake,
+                    dog_name=clean_string(row.get(DOG_NAME)),
+                    source=EventSource.GS_BEHAVIORAL_OUTREACH_FOSTER,
+                    summary=intake_notes or "Intake behavior information recorded",
+                    foster_response=foster_response or None,
+                    location="HQ",
+                )
             )
-        )
 
     return events
