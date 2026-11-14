@@ -17,6 +17,7 @@ from database.database import (
 from main import get_dog_info, store_dog_info
 from models.behavior_event import BehaviorConcern, BehaviorEvent, EventSource
 from models.foster_behavior_event import FosterBehaviorEvent
+from search.timeline_search import find_fuzzy_matches, find_matching_dogs, group_dog_names
 
 if IS_LOCAL:
     st.caption("Development mode")
@@ -562,21 +563,10 @@ with timeline_tab:
                 st.warning("Enter a dog name.")
             else:
                 try:
-                    dog_groups = {}
-                    for event in get_all_behavior_events():
-                        normalized = normalize_dog_name(event.dog_name)
-                        if not normalized:
-                            continue
-                        if normalized not in dog_groups:
-                            dog_groups[normalized] = set()
-                        dog_groups[normalized].add(event.dog_name)
-
-                    matches = {
-                        normalized: sorted(names)
-                        for normalized, names in dog_groups.items()
-                        if normalized_search in normalized
-                    }
-
+                    dog_groups = group_dog_names(get_all_behavior_events())
+                    matches = find_matching_dogs(search_term, dog_groups)
+                    if len(matches) == 0:
+                        matches = find_fuzzy_matches(search_term, dog_groups)
                     if len(matches) == 1:
                         load_timeline(next(iter(matches.values())))
                     elif len(matches) > 1:
