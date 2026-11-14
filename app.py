@@ -1,5 +1,6 @@
 from datetime import datetime
 from html import escape
+import re
 
 import streamlit as st
 
@@ -405,6 +406,10 @@ def concern_chip(concern: str) -> str:
     )
 
 
+def normalize_dog_name(name: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", name.lower())
+
+
 def event_label(event):
     if hasattr(event, "medication") and event.medication:
         return "💊 Medication update"
@@ -522,35 +527,82 @@ with timeline_tab:
                 use_container_width=True,
             )
 
-        # Clear stale results when the dog name is changed or erased.
-        previous_dog = st.session_state.get("timeline_dog")
-        if previous_dog:
-            if dog_name.strip().lower() != previous_dog.strip().lower():
-                st.session_state.pop("timeline", None)
-                st.session_state.pop("timeline_dog", None)
+        # A partial search may differ from the selected dog's full name.
+        search_term = dog_name.strip()
+        if search_term != st.session_state.get("last_search_query", ""):
+            st.session_state["last_search_query"] = search_term
+            st.session_state.pop("timeline", None)
+            st.session_state.pop("timeline_dog", None)
+            st.session_state.pop("matching_dogs", None)
+
+        def load_timeline(names):
+            # A dog may have events recorded under several spellings.
+            display_name = sorted(names)[0]
+            with st.spinner(f"Loading {display_name}..."):
+                timeline = []
+                seen_events = set()
+                for name in sorted(names):
+                    for event in get_dog_info(name):
+                        event_key = (event.source, event.event_id)
+                        if event_key not in seen_events:
+                            seen_events.add(event_key)
+                            timeline.append(event)
+                timeline.sort(key=lambda event: event.timestamp, reverse=True)
+
+            st.session_state["timeline"] = timeline
+            st.session_state["timeline_dog"] = display_name
+            st.session_state.pop("matching_dogs", None)
 
         # Both Enter in the input and the Search button run this same search.
         search_requested = st.session_state.pop("timeline_search_requested", False)
 
-        # SEARCH FOR DOG AND SAVE RESULTS
         if search_clicked or search_requested:
-            dog_name = dog_name.strip()
-
-            if not dog_name:
-                if search_clicked:
-                    st.warning("Enter a dog name.")
-
+            normalized_search = normalize_dog_name(search_term)
+            if not normalized_search:
+                st.warning("Enter a dog name.")
             else:
                 try:
-                    with st.spinner(f"Loading {dog_name}..."):
-                        timeline = get_dog_info(dog_name)
+                    dog_groups = {}
+                    for event in get_all_behavior_events():
+                        normalized = normalize_dog_name(event.dog_name)
+                        if not normalized:
+                            continue
+                        if normalized not in dog_groups:
+                            dog_groups[normalized] = set()
+                        dog_groups[normalized].add(event.dog_name)
 
-                    st.session_state["timeline"] = timeline
-                    st.session_state["timeline_dog"] = dog_name
+                    matches = {
+                        normalized: sorted(names)
+                        for normalized, names in dog_groups.items()
+                        if normalized_search in normalized
+                    }
 
+                    if len(matches) == 1:
+                        load_timeline(next(iter(matches.values())))
+                    elif len(matches) > 1:
+                        st.session_state["matching_dogs"] = matches
+                    else:
+                        st.info("No matching dogs found.")
+
+                except Exception as exc:
+                    st.error("Could not search for dogs.")
+                    st.exception(exc)
+
+        if st.session_state.get("matching_dogs"):
+            matches = st.session_state["matching_dogs"]
+            selected_group = st.selectbox(
+                "Multiple dogs found. Select a pup:",
+                options=sorted(matches.items()),
+                format_func=lambda item: item[1][0],
+            )
+
+            if st.button("View timeline", type="primary"):
+                try:
+                    load_timeline(selected_group[1])
                 except Exception as exc:
                     st.error("Could not load the dog's timeline.")
                     st.exception(exc)
+
 
         # DISPLAY SAVED TIMELINE
         if "timeline" in st.session_state:
@@ -911,7 +963,7 @@ with database_tab:
 
             # Filter by pup name
             if pup_name:
-                if pup_name.lower() not in event.dog_name.lower():
+                if normalize_dog_name(pup_name) not in normalize_dog_name(event.dog_name):
                     continue
 
             # Filter by date range
