@@ -28,6 +28,10 @@ st.set_page_config(
 )
 
 create_tables()
+@st.cache_data
+def get_dog_groups():
+    events = get_all_behavior_events()
+    return group_dog_names(events)
 
 # Warm, approachable visual theme. All application logic stays in Streamlit.
 st.markdown("""
@@ -387,6 +391,7 @@ with right_column:
     if st.button("Refresh database", use_container_width=True):
         with st.spinner("Refreshing records..."):
             backfill_all()
+            get_dog_groups.clear()
         st.success("Database refreshed!")
 
         
@@ -563,7 +568,7 @@ with timeline_tab:
                 st.warning("Enter a dog name.")
             else:
                 try:
-                    dog_groups = group_dog_names(get_all_behavior_events())
+                    dog_groups = get_dog_groups()
                     matches = find_matching_dogs(search_term, dog_groups)
                     if len(matches) == 0:
                         matches = find_fuzzy_matches(search_term, dog_groups)
