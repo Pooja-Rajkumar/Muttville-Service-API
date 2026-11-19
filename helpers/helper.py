@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import Any
-import re
 
 def clean_string(value: Any) -> str | None:
     if value is None:
@@ -30,5 +29,3 @@ def parse_timestamp(value: Any) -> datetime | None: # type: ignore
 
     return None
 
-def normalize_dog_name(name: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", name.lower())
